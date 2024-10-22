@@ -1,0 +1,13 @@
+[project]
+name = "rsp125"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "enum34>=1.1.10",
+    "gymnasium>=0.29.1",
+    "numpy<2",
+    "stable-baselines3>=2.3.2",
+    "torch==2.0.1",
+]
