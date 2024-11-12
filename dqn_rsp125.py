@@ -10,7 +10,6 @@ def main():
     model.save('dqn_rsp125') # 学習ずみのモデルを別保存
     hist = model.observation_space
     return model, hist
-    del model
 
 # def test():
 #     env = RSP125(goal=100)
@@ -23,13 +22,15 @@ def main():
 #             obs, info = env.reset()
 
 def rally():
+    print("start rally")
     env = RSP125(goal=100)
     model = DQN('MlpPolicy', env, verbose=1)
     model.learn(total_timesteps=400)
     # model.save('dqn_rsp125') # 学習ずみのモデルを別保存
-    for i in range(0):
+    for i in range(10):
         model.set_env(env)
         model.learn(total_timesteps=400, reset_num_timesteps=False)
+        print(env.action_history)
     model.save('dqn_rsp125') # 学習ずみのモデルを別保存
     return model
 
@@ -76,4 +77,3 @@ if __name__ == '__main__':
     print(mod._last_obs)
     print(_states)
     # print(model.get_action([1,2,1,1,1,0,1,2,3,2]))
-
