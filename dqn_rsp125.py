@@ -20,20 +20,6 @@ def main():
 #         obs, reward, terminated, truncated, info = env.step(action)
 #         if terminated or truncated:
 #             obs, info = env.reset()
-
-def rally():
-    print("start rally")
-    env = RSP125(goal=100)
-    model = DQN('MlpPolicy', env, verbose=1)
-    model.learn(total_timesteps=400)
-    # model.save('dqn_rsp125') # 学習ずみのモデルを別保存
-    for i in range(10):
-        model.set_env(env)
-        model.learn(total_timesteps=400, reset_num_timesteps=False)
-        print(env.action_history)
-    model.save('dqn_rsp125') # 学習ずみのモデルを別保存
-    return model
-
 def test_rally():
     env = RSP125(goal=100)
     model = DQN('MlpPolicy', env, verbose=1)
@@ -65,6 +51,36 @@ def test_rally():
     print("\n**\n")
 
     return model
+
+def rally():
+    print("start rally")
+    env = RSP125(goal=100)
+    model = DQN('MlpPolicy', env, verbose=1)
+    model.learn(total_timesteps=400)
+    # model.save('dqn_rsp125') # 学習ずみのモデルを別保存
+    for i in range(10):
+        model.set_env(env)
+        model.learn(total_timesteps=100, reset_num_timesteps=False)
+        # print(env.action_history)
+    model.save('dqn_rsp125') # 学習ずみのモデルを別保存
+    return model
+
+
+def create_new_agent(base_class, mod_action, class_name):
+    return type(
+        class_name,  # クラス名
+        (base_class,),  # 継承するベースクラス
+        {
+            # get_actionメソッドを上書き
+            "get_action": lambda self, obs: mod_action.predict(obs, deterministic=True)
+        },
+    )
+
+def two_player():
+    env = RSP125(goal=100)
+    playerA = DQN('MlpPolicy', env, verbose=1)
+    playerB = DQN('MlpPolicy', env, verbose=1)
+
 
 if __name__ == '__main__':
     # main()
