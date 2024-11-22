@@ -82,14 +82,6 @@ class RSP125(gym.Env):
             print(f'プレーヤーの手：{action0.name}、相手の手：{action1.name}')
             print(f'プレーヤーのスコア： {score0}、相手のスコア：{score1}')
 
-
-class UniformAgent:
-    def reset(self, rng):
-        self.rng = rng
-
-    def get_action(self, obs):
-        return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3))
-
 class InputAgent:
     def action(self, obs):
         print('履歴')
@@ -100,6 +92,16 @@ class InputAgent:
         while action not in Actions.__members__:
             action = input('R or S or P ? ')
         return Actions[action]
+
+class UniformAgent:
+    def reset(self, rng=None):
+        if rng is None:
+            rng = np.random.default_rng()  # デフォルトの乱数生成器を使う
+        # rngを使った処理を続ける
+        self.rng = rng
+
+    def get_action(self, obs):
+        return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3))
     
 class NashAgent(UniformAgent):
     def get_action(self, obs):
