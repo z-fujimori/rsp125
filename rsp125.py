@@ -3,7 +3,6 @@ from enum import IntEnum
 import gymnasium as gym
 import numpy as np
 
-
 class Actions(IntEnum):
     R = 0
     S = 1
@@ -20,6 +19,7 @@ class RSP125(gym.Env):
         # self.hand_percentafe_space_between = 45
         # self.hand_percentafe_space = [[0, 0, 0] for _ in range(222)]
         # self.hand_percentafe_space_count = [0, 0] # カウント, 初めの10回か
+        self.action_history = np.full((n_history + goal, 2), 3, dtype=int)
 
         self.opp = opp or UniformAgent()
         # self.opp = opp or TitForTat()
@@ -30,7 +30,7 @@ class RSP125(gym.Env):
         self.render_mode = render_mode
 
     def _get_obs(self, opp=False):
-        hist = self._action_history[self.game_count:self.game_count+self.n_history, :]
+        hist = self.action_history[self.game_count:self.game_count+self.n_history, :]
         if opp:
             hist = hist[:, ::-1]
         return hist.ravel()
@@ -51,7 +51,7 @@ class RSP125(gym.Env):
         super().reset(seed=seed)
         self.opp.reset(self.np_random)
         self.game_count = 0
-        self._action_history = np.full((self.n_history + self.goal, 2), 3, dtype=int)
+        self.action_history = np.full((self.n_history + self.goal, 2), 3, dtype=int)
         self._reward_history = np.zeros((self.goal, 2))
         # self.hand_percentafe_space = [[0, 0, 0] for _ in range(222)]
         return self._get_obs(), self._get_info()
@@ -59,7 +59,7 @@ class RSP125(gym.Env):
     def step(self, action):
         opp_action = self.opp.get_action(self._get_obs(opp=True))
         reward, opp_reward = self._get_reward(action, opp_action)
-        self._action_history[self.n_history + self.game_count] = action, opp_action
+        self.action_history[self.n_history + self.game_count] = action, opp_action
         self._reward_history[self.game_count] = reward, opp_reward
         self.game_count += 1
         terminated = self.game_count == self.goal
@@ -67,15 +67,15 @@ class RSP125(gym.Env):
 
         # if self.game_count >= 10 :
         #     self.hand_percentafe_space[(self.game_count-10) // self.hand_percentafe_space_between][]
-        print("-----")
+        # print("-----")
 
         self.render()
         return self._get_obs(), reward, terminated, truncated, self._get_info()
 
     def render(self):
         if self.render_mode == 'human':
-            action0 = Actions(self._action_history[self.n_history + self.game_count - 1, 0])
-            action1 = Actions(self._action_history[self.n_history + self.game_count - 1, 1])
+            action0 = Actions(self.action_history[self.n_history + self.game_count - 1, 0])
+            action1 = Actions(self.action_history[self.n_history + self.game_count - 1, 1])
             score0 = self._reward_history[:self.game_count, 0].sum()
             score1 = self._reward_history[:self.game_count, 1].sum()
             print(f'{self.game_count}回目')
