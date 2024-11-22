@@ -1,4 +1,6 @@
 from stable_baselines3 import DQN
+from stable_baselines3.common.callbacks import BaseCallback
+import numpy as np
 
 from rsp125 import RSP125
 from rsp125 import UniformAgent
@@ -6,10 +8,12 @@ from rsp125 import UniformAgent
 def main():
     env = RSP125(goal=100)
     model = DQN('MlpPolicy', env, verbose=1)
-    model.learn(total_timesteps=10_000)
+    action_callback = FullActionHistoryCallback()
+    model.learn(total_timesteps=10_000, callback=action_callback)
     model.save('dqn_rsp125') # 学習ずみのモデルを別保存
+    action_history = action_callback.action_history
     hist = model.observation_space
-    return model, hist
+    return model, hist, action_history
 
 # def test():
 #     env = RSP125(goal=100)
@@ -52,6 +56,21 @@ def test_rally():
 
     return model
 
+# 学習中のアクション履歴を記録するカスタムコールバック
+class FullActionHistoryCallback(BaseCallback):
+    def __init__(self):
+        super(FullActionHistoryCallback, self).__init__()
+        self.action_history = []
+
+    def _on_step(self) -> bool:
+        if self.locals.get('actions') is not None:
+            action = self.locals['actions']
+            obs = self.locals['new_obs']
+            if hasattr(self.training_env.envs[0], 'opp'):
+                opp_action = self.training_env.envs[0].opp.get_action(obs)
+                self.action_history.append((action, opp_action))
+        return True
+
 def rally():
     print("start rally")
     env = RSP125(goal=100)
@@ -80,16 +99,44 @@ def two_player():
     env = RSP125(goal=100)
     playerA = DQN('MlpPolicy', env, verbose=1)
     playerB = DQN('MlpPolicy', env, verbose=1)
+    playerA.learn(total_timesteps=2000)
+    playerB.learn(total_timesteps=2000)
 
 
 if __name__ == '__main__':
     # main()
-    # mod, hist = main()
-    mod = rally()
-    obs = [1, 0, 1, 0, 2, 1, 1, 1, 0, 1, 0, 2, 1, 1, 2, 0, 1, 1, 1, 2]
-    action, _states = mod.predict(obs, deterministic=True)
-    # print("hist shape   ", hist)
-    print(action)
-    print(mod._last_obs)
-    print(_states)
+    mod, hist, action_history = main()
+    print(action_history)
+    print("長さ: ",len(action_history))
+    print(f"総履歴数: {len(action_history)}")
+
+    # 初めの3つの100回分を表示
+    chunk_size = 100
+    # 1回目の100回
+    print("1回目の100回:")
+    for i, (player_action, opp_action) in enumerate(action_history[:chunk_size], 1):
+        print(f"{i}回目: プレイヤー={player_action}, 相手={opp_action}")
+    # 2回目の100回
+    print("\n2回目の100回:")
+    start_idx = chunk_size
+    for i, (player_action, opp_action) in enumerate(action_history[start_idx:start_idx + chunk_size], 1):
+        print(f"2: {i}回目: プレイヤー={player_action}, 相手={opp_action}")
+    # 3回目の100回
+    print("\n3回目の100回:")
+    start_idx = 2 * chunk_size
+    for i, (player_action, opp_action) in enumerate(action_history[start_idx:start_idx + chunk_size], 1):
+        print(f"3: {i}回目: プレイヤー={player_action}, 相手={opp_action}")
+    
+    # 終盤の100回
+    print("\n99回目の100回:")
+    start_idx = 99 * chunk_size
+    for i, (player_action, opp_action) in enumerate(action_history[start_idx:start_idx + chunk_size], 1):
+        print(f"99: {i}回目: プレイヤー={player_action}, 相手={opp_action}")
+    # # mod = rally()
+    # obs = [1, 0, 1, 0, 2, 1, 1, 1, 0, 1, 0, 2, 1, 1, 2, 0, 1, 1, 1, 2]
+    # action, _states = mod.predict(obs, deterministic=True)
+    # # print("hist shape   ", hist)
+    # print(action)
+    # print(mod._last_obs)
+    # print(_states)
     # print(model.get_action([1,2,1,1,1,0,1,2,3,2]))
