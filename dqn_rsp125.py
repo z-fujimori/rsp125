@@ -19,21 +19,6 @@ def main():
   hist = model.observation_space
   return model, hist, action_history
 
-# 学習中のアクション履歴を記録するカスタムコールバック
-class FullActionHistoryCallback(BaseCallback):
-  def __init__(self):
-    super(FullActionHistoryCallback, self).__init__()
-    self.action_history = []
-
-  def _on_step(self) -> bool:
-    if self.locals.get('actions') is not None:
-      action = self.locals['actions']
-      obs = self.locals['new_obs']
-      if hasattr(self.training_env.envs[0], 'opp'):
-        opp_action = self.training_env.envs[0].opp.get_action(obs)
-        self.action_history.append((action, opp_action))
-    return True
-
 def rally():
   print("start rally")
   env = RSP125(goal=100)
@@ -46,6 +31,26 @@ def rally():
     # print(env.action_history)
   model.save('dqn_rsp125') # 学習ずみのモデルを別保存
   return model
+
+# 学習中のアクション履歴を記録するカスタムコールバック
+class FullActionHistoryCallback(BaseCallback):
+  def __init__(self):
+    super(FullActionHistoryCallback, self).__init__()
+    self.action_history = []
+    self.rewards = []
+
+  def _on_step(self) -> bool:
+    if self.locals.get('actions') is not None:
+      action = self.locals['actions']
+      obs = self.locals['new_obs']
+      reward = self.locals['rewards']
+      if hasattr(self.training_env.envs[0], 'opp'):
+        opp_action = self.training_env.envs[0].opp.get_action(obs)
+        self.action_history.append((action, opp_action))
+        self.rewards.append(reward)
+    # if 'rewards' in self.locals:
+    #   self.rewards.append(self.locals['rewards'])
+    return True
 
 # クラスから手を出す戦略を作成
 def create_new_agent(mod_action, class_name):
@@ -67,45 +72,53 @@ def two_player():
   playerB = DQN('MlpPolicy', env, verbose=1)
   
   # 学習を開始
-  playerA.learn(total_timesteps=2000, callback=action_callback_a)
-  playerB.learn(total_timesteps=2000, callback=action_callback_b)
+  playerA.learn(total_timesteps=2000, reset_num_timesteps=False, callback=action_callback_a)
+  playerB.learn(total_timesteps=2000, reset_num_timesteps=False, callback=action_callback_b)
   
   # 500回学習を繰り返す
   for i in range(500):
-    print("1")
     rng_a = np.random.RandomState()  # 新しい乱数生成器を作成
     rng_b = np.random.RandomState()  # 新しい乱数生成器を作成
     aAgent = create_new_agent(playerA, "PlayerA")  # rngを渡す
     bAgent = create_new_agent(playerB, "PlayerB")  # rngを渡す
-    print("2")
     
     env_a = RSP125(opp=aAgent(), goal=100)
     env_b = RSP125(opp=bAgent(), goal=100)
-    print("3")
     
     playerA.set_env(env_a)
     playerB.set_env(env_b)
-    print("4")
     
     # 各エージェントを1ステップ学習
     playerA.learn(total_timesteps=10, reset_num_timesteps=False)
     playerB.learn(total_timesteps=10, reset_num_timesteps=False)
-    print("5")
   
   # モデルを保存
   playerA.save("playerA")
   playerB.save("playerB")
   
-  # 履歴を取得
-  historyA = action_callback_a.action_history
-  historyB = action_callback_b.action_history
+  # 行動履歴を取得
+  action_history_a = action_callback_a.action_history
+  action_history_b = action_callback_b.action_history
+
+  # 平均報酬履歴
+  reward_history_a = action_callback_a.rewards
+  reward_history_b = action_callback_b.rewards
   
-  return playerA, playerB, historyA, historyB
+  return playerA, playerB, action_history_a, action_history_b, reward_history_a, reward_history_b
+
+def print_rew(rews):
+  chunk_size = 100
+  print(len(rews))
+  # 1回目の100回
+  for i, (rew) in enumerate(rews):
+    print(f"{i}回目: 報酬={rew}")
 
 if __name__ == '__main__':
   
   # ２人のプレイヤー
-    pl_a, pl_b, his_a, his_b = two_player()
+    pl_a, pl_b, act_his_a, act_his_b, rew_his_a, rew_his_b = two_player()
+
+    print_rew(rew_his_a)
 
   # main()
     # mod, hist, action_history = main()
@@ -135,5 +148,7 @@ if __name__ == '__main__':
     # start_idx = 99 * chunk_size
     # for i, (player_action, opp_action) in enumerate(action_history[start_idx:start_idx + chunk_size], 1):
     #   print(f"99: {i}回目: プレイヤー={player_action}, 相手={opp_action}")
+
+
 
 
