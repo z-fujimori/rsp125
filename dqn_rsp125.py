@@ -4,6 +4,7 @@ import numpy as np
 
 from rsp125 import RSP125
 from rsp125 import UniformAgent
+from data_display import plot_rews,display_percentage_of_hand
 
 class NashAgent(UniformAgent):
     def get_action(self, obs):
@@ -38,18 +39,20 @@ class FullActionHistoryCallback(BaseCallback):
     super(FullActionHistoryCallback, self).__init__()
     self.action_history = []
     self.rewards = []
+    self.current_reward = 0
 
   def _on_step(self) -> bool:
+    self.current_reward += self.locals['rewards'][0]
+    if self.locals['dones']:
+      self.rewards.append(self.current_reward)
+      self.current_reward = 0
+
     if self.locals.get('actions') is not None:
       action = self.locals['actions']
       obs = self.locals['new_obs']
-      reward = self.locals['rewards']
       if hasattr(self.training_env.envs[0], 'opp'):
         opp_action = self.training_env.envs[0].opp.get_action(obs)
         self.action_history.append((action, opp_action))
-        self.rewards.append(reward)
-    # if 'rewards' in self.locals:
-    #   self.rewards.append(self.locals['rewards'])
     return True
 
 # クラスから手を出す戦略を作成
@@ -68,12 +71,12 @@ def two_player():
   env = RSP125(goal=100, opp=NashAgent())
   action_callback_a = FullActionHistoryCallback()
   action_callback_b = FullActionHistoryCallback()
-  playerA = DQN('MlpPolicy', env, verbose=1)
-  playerB = DQN('MlpPolicy', env, verbose=1)
+  playerA = DQN('MlpPolicy', env, verbose=0) # verbose=0で途中ログの出力制御
+  playerB = DQN('MlpPolicy', env, verbose=0)
   
   # 学習を開始
-  playerA.learn(total_timesteps=2000, reset_num_timesteps=False, callback=action_callback_a)
-  playerB.learn(total_timesteps=2000, reset_num_timesteps=False, callback=action_callback_b)
+  playerA.learn(total_timesteps=20100, reset_num_timesteps=False, callback=action_callback_a)
+  playerB.learn(total_timesteps=20100, reset_num_timesteps=False, callback=action_callback_b)
   
   # 500回学習を繰り返す
   for i in range(500):
@@ -89,8 +92,8 @@ def two_player():
     playerB.set_env(env_b)
     
     # 各エージェントを1ステップ学習
-    playerA.learn(total_timesteps=10, reset_num_timesteps=False)
-    playerB.learn(total_timesteps=10, reset_num_timesteps=False)
+    playerA.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_a)
+    playerB.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_b)
   
   # モデルを保存
   playerA.save("playerA")
@@ -116,9 +119,12 @@ def print_rew(rews):
 if __name__ == '__main__':
   
   # ２人のプレイヤー
-    pl_a, pl_b, act_his_a, act_his_b, rew_his_a, rew_his_b = two_player()
+  pl_a, pl_b, act_his_a, act_his_b, rew_his_a, rew_his_b = two_player()
 
-    print_rew(rew_his_a)
+  print("\n")
+
+  display_percentage_of_hand(act_his_a, act_his_b)
+  plot_rews(rew_his_a, rew_his_b)
 
   # main()
     # mod, hist, action_history = main()
