@@ -71,15 +71,17 @@ def two_player():
   env = RSP125(goal=100, opp=NashAgent())
   action_callback_a = FullActionHistoryCallback()
   action_callback_b = FullActionHistoryCallback()
-  playerA = DQN('MlpPolicy', env, learning_rate=0.00005, verbose=0) # verbose=0で途中ログの出力制御
-  playerB = DQN('MlpPolicy', env, learning_rate=0.00005, verbose=0)
+  playerA = DQN('MlpPolicy', env, learning_rate=0.000001, verbose=0) # verbose=0で途中ログの出力制御
+  playerB = DQN('MlpPolicy', env, learning_rate=0.000001, verbose=0)
   
   # 学習を開始
   playerA.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_a)
   playerB.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_b)
   
   # 500回学習を繰り返す
-  for i in range(10000):
+  for i in range(50000):
+    if i % 5000:
+      print("#")
     aAgent = create_new_agent(playerA, "PlayerA")  # rngを渡す
     bAgent = create_new_agent(playerB, "PlayerB")  # rngを渡す
     
