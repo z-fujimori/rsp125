@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.font_manager as fm
 
-def plot_rews(rews1,rews2):
+def plot_rews(rews1,rews2,id):
   # x軸の値
   # x = np.arange(0, 1201)
   x = np.arange(1, min(len(rews1), len(rews2)) + 1)  # xは最小の長さに合わせる
@@ -12,12 +12,12 @@ def plot_rews(rews1,rews2):
 
   # プロット
   plt.figure(figsize=(12, 6))  # グラフのサイズを指定
-  plt.plot(x, sum_rews, label="Total rewerd", color="red")
+  plt.plot(x, sum_rews, label="Total rewerd", color="gray")
   plt.plot(x, rews1, label="PlayerA", color="blue")
   plt.plot(x, rews2, label="PlayerB", color="orange")
 
   # グラフの設定
-  plt.title("Line Graph of Two Datasets")
+  plt.title(id)
   plt.xlabel("Episode")
   plt.ylabel("Value")
   plt.legend()  # 凡例を追加
@@ -41,6 +41,8 @@ def display_percentage_of_hand(hist_a, hist_b):
       percentage = np.zeros((3, 3), dtype=int) 
 
   for i, per in enumerate(total_pers):
-    print(f'{i}[A,B] [G,G]{per[0][0]} [G,C]{per[0][1]} [G,P]{per[0][2]} [C,G]{per[1][0]} [C,C]{per[1][1]} [C,P]{per[1][2]} [P,G]{per[2][0]} [P,C]{per[2][1]} [P,P]{per[2][2]}')
-  
-  
+    print(f'{i+1}')
+    print(f'a\\b G | C | P |')
+    print(f'G | {per[0][0]:02}| {per[0][1]:02}| {per[0][2]:02}|')
+    print(f'C | {per[1][0]:02}| {per[1][1]:02}| {per[1][2]:02}|')
+    print(f'P | {per[2][0]:02}| {per[2][1]:02}| {per[2][2]:02}|')

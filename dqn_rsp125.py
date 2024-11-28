@@ -71,22 +71,22 @@ def two_player():
   env = RSP125(goal=100, opp=NashAgent())
   action_callback_a = FullActionHistoryCallback()
   action_callback_b = FullActionHistoryCallback()
-  playerA = DQN('MlpPolicy', env, verbose=0) # verbose=0で途中ログの出力制御
-  playerB = DQN('MlpPolicy', env, verbose=0)
+  playerA = DQN('MlpPolicy', env, learning_rate=0.000001, verbose=0) # verbose=0で途中ログの出力制御
+  playerB = DQN('MlpPolicy', env, learning_rate=0.000001, verbose=0)
   
   # 学習を開始
-  playerA.learn(total_timesteps=20100, reset_num_timesteps=False, callback=action_callback_a)
-  playerB.learn(total_timesteps=20100, reset_num_timesteps=False, callback=action_callback_b)
+  playerA.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_a)
+  playerB.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_b)
   
   # 500回学習を繰り返す
-  for i in range(500):
-    rng_a = np.random.RandomState()  # 新しい乱数生成器を作成
-    rng_b = np.random.RandomState()  # 新しい乱数生成器を作成
+  for i in range(50000):
+    if i % 5000:
+      print("#")
     aAgent = create_new_agent(playerA, "PlayerA")  # rngを渡す
     bAgent = create_new_agent(playerB, "PlayerB")  # rngを渡す
     
-    env_a = RSP125(opp=aAgent(), goal=100)
-    env_b = RSP125(opp=bAgent(), goal=100)
+    env_a = RSP125(opp=bAgent(), goal=100)
+    env_b = RSP125(opp=aAgent(), goal=100)
     
     playerA.set_env(env_a)
     playerB.set_env(env_b)
@@ -109,52 +109,15 @@ def two_player():
   
   return playerA, playerB, action_history_a, action_history_b, reward_history_a, reward_history_b
 
-def print_rew(rews):
-  chunk_size = 100
-  print(len(rews))
-  # 1回目の100回
-  for i, (rew) in enumerate(rews):
-    print(f"{i}回目: 報酬={rew}")
-
 if __name__ == '__main__':
   
   # ２人のプレイヤー
   pl_a, pl_b, act_his_a, act_his_b, rew_his_a, rew_his_b = two_player()
 
   print("\n")
+  id = np.random.RandomState()
 
   display_percentage_of_hand(act_his_a, act_his_b)
-  plot_rews(rew_his_a, rew_his_b)
-
-  # main()
-    # mod, hist, action_history = main()
-    # print(action_history)
-    # print("長さ: ",len(action_history))
-    # print(f"総履歴数: {len(action_history)}")
-
-    # # 初めの3つの100回分を表示
-    # chunk_size = 100
-    # # 1回目の100回
-    # print("1回目の100回:")
-    # for i, (player_action, opp_action) in enumerate(action_history[:chunk_size], 1):
-    #   print(f"{i}回目: プレイヤー={player_action}, 相手={opp_action}")
-    # # 2回目の100回
-    # print("\n2回目の100回:")
-    # start_idx = chunk_size
-    # for i, (player_action, opp_action) in enumerate(action_history[start_idx:start_idx + chunk_size], 1):
-    #   print(f"2: {i}回目: プレイヤー={player_action}, 相手={opp_action}")
-    # # 3回目の100回
-    # print("\n3回目の100回:")
-    # start_idx = 2 * chunk_size
-    # for i, (player_action, opp_action) in enumerate(action_history[start_idx:start_idx + chunk_size], 1):
-    #   print(f"3: {i}回目: プレイヤー={player_action}, 相手={opp_action}")
-    
-    # # 終盤の100回
-    # print("\n99回目の100回:")
-    # start_idx = 99 * chunk_size
-    # for i, (player_action, opp_action) in enumerate(action_history[start_idx:start_idx + chunk_size], 1):
-    #   print(f"99: {i}回目: プレイヤー={player_action}, 相手={opp_action}")
-
-
-
+  print(id)
+  plot_rews(rew_his_a, rew_his_b, id)
 
