@@ -10,29 +10,6 @@ class NashAgent(UniformAgent):
     def get_action(self, obs):
         return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17))
 
-def main():
-  env = RSP125(goal=100)
-  model = DQN('MlpPolicy', env, verbose=1)
-  action_callback = FullActionHistoryCallback()
-  model.learn(total_timesteps=10_000, callback=action_callback)
-  model.save('dqn_rsp125') # 学習ずみのモデルを別保存
-  action_history = action_callback.action_history
-  hist = model.observation_space
-  return model, hist, action_history
-
-def rally():
-  print("start rally")
-  env = RSP125(goal=100)
-  model = DQN('MlpPolicy', env, verbose=1)
-  model.learn(total_timesteps=400)
-  # model.save('dqn_rsp125') # 学習ずみのモデルを別保存
-  for i in range(10):
-    model.set_env(env)
-    model.learn(total_timesteps=100, reset_num_timesteps=False)
-    # print(env.action_history)
-  model.save('dqn_rsp125') # 学習ずみのモデルを別保存
-  return model
-
 # 学習中のアクション履歴を記録するカスタムコールバック
 class FullActionHistoryCallback(BaseCallback):
   def __init__(self):
@@ -67,29 +44,30 @@ def create_new_agent(mod_action, class_name):
     },
   )
 
+learn_rate = 0.00005
+num_iterations = 2000
 def two_player():
   env = RSP125(goal=100, opp=NashAgent())
   action_callback_a = FullActionHistoryCallback()
   action_callback_b = FullActionHistoryCallback()
-  playerA = DQN('MlpPolicy', env, learning_rate=0.000001, verbose=0) # verbose=0で途中ログの出力制御
-  playerB = DQN('MlpPolicy', env, learning_rate=0.000001, verbose=0)
+  playerA = DQN('MlpPolicy', env, learning_rate=learn_rate, verbose=0) # verbose=0で途中ログの出力制御
+  playerB = DQN('MlpPolicy', env, learning_rate=learn_rate, verbose=0)
+  # playerA = DQN('MlpPolicy', env, learning_rate=learn_rate, verbose=0, gradient_steps=100, train_freq=100) # verbose=0で途中ログの出力制御
+  # playerB = DQN('MlpPolicy', env, learning_rate=learn_rate, verbose=0, gradient_steps=100, train_freq=100)
   
   # 学習を開始
   playerA.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_a)
   playerB.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_b)
   
   # 500回学習を繰り返す
-  for i in range(50000):
-    if i % 5000:
+  for i in range(num_iterations):
+    if i % (num_iterations/10) == 0:
       print("#")
     aAgent = create_new_agent(playerA, "PlayerA")  # rngを渡す
     bAgent = create_new_agent(playerB, "PlayerB")  # rngを渡す
     
-    env_a = RSP125(opp=bAgent(), goal=100)
-    env_b = RSP125(opp=aAgent(), goal=100)
-    
-    playerA.set_env(env_a)
-    playerB.set_env(env_b)
+    playerA.set_env(RSP125(opp=bAgent(), goal=100))
+    playerB.set_env(RSP125(opp=aAgent(), goal=100))
     
     # 各エージェントを1ステップ学習
     playerA.learn(total_timesteps=100, reset_num_timesteps=False, callback=action_callback_a)
@@ -115,9 +93,19 @@ if __name__ == '__main__':
   pl_a, pl_b, act_his_a, act_his_b, rew_his_a, rew_his_b = two_player()
 
   print("\n")
-  id = np.random.RandomState()
+  id = np.random.RandomState(1000).randint(1, 10000)
 
   display_percentage_of_hand(act_his_a, act_his_b)
   print(id)
-  plot_rews(rew_his_a, rew_his_b, id)
+  plot_rews(rew_his_a, rew_his_b, id, learn_rate)
 
+  # print(pl_a.replay_buffer.next_observations[:, 0, -2:])
+  # print(pl_a.replay_buffer.next_observations)
+  # replay_buffer = pl_a.replay_buffer
+
+  # observations = replay_buffer.observations
+  # actions = replay_buffer.actions
+  # rewards = replay_buffer.rewards
+  # next_observations = replay_buffer.next_observations
+  # done_flags = replay_buffer.dones
+  # print(actions)
