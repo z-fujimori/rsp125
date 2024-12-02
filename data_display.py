@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.font_manager as fm
 
-def plot_rews(rews1,rews2,id):
+def plot_rews(rews1,rews2,id,learning_rate):
   # x軸の値
   # x = np.arange(0, 1201)
   x = np.arange(1, min(len(rews1), len(rews2)) + 1)  # xは最小の長さに合わせる
@@ -17,7 +17,7 @@ def plot_rews(rews1,rews2,id):
   plt.plot(x, rews2, label="PlayerB", color="orange")
 
   # グラフの設定
-  plt.title(id)
+  plt.title(f'id:{id}  learn_rate:{learning_rate}')
   plt.xlabel("Episode")
   plt.ylabel("Value")
   plt.legend()  # 凡例を追加
