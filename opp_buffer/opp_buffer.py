@@ -3,7 +3,6 @@ from copy import deepcopy
 import numpy as np
 from stable_baselines3 import DQN as _DQN
 
-
 class DQN(_DQN):
   def __init__(self, *args, **kwargs):
     self.opp_replay_buffer = None
@@ -12,16 +11,16 @@ class DQN(_DQN):
   def _setup_model(self):
     super()._setup_model()
     if self.opp_replay_buffer is None:
-        replay_buffer_kwargs = self.replay_buffer_kwargs.copy()
-        self.opp_replay_buffer = self.replay_buffer_class(
-          self.buffer_size,
-          self.observation_space,
-          self.action_space,
-          device=self.device,
-          n_envs=self.n_envs,
-          optimize_memory_usage=self.optimize_memory_usage,
-          **replay_buffer_kwargs,
-        )
+      replay_buffer_kwargs = self.replay_buffer_kwargs.copy()
+      self.opp_replay_buffer = self.replay_buffer_class(
+        self.buffer_size,
+        self.observation_space,
+        self.action_space,
+        device=self.device,
+        n_envs=self.n_envs,
+        optimize_memory_usage=self.optimize_memory_usage,
+        **replay_buffer_kwargs,
+      )
 
   def _store_transition(
     self, replay_buffer, buffer_action, new_obs, reward, dones, infos

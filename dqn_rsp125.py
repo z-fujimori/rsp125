@@ -98,14 +98,3 @@ if __name__ == '__main__':
   display_percentage_of_hand(act_his_a, act_his_b)
   print(id)
   plot_rews(rew_his_a, rew_his_b, id, learn_rate)
-
-  # print(pl_a.replay_buffer.next_observations[:, 0, -2:])
-  # print(pl_a.replay_buffer.next_observations)
-  # replay_buffer = pl_a.replay_buffer
-
-  # observations = replay_buffer.observations
-  # actions = replay_buffer.actions
-  # rewards = replay_buffer.rewards
-  # next_observations = replay_buffer.next_observations
-  # done_flags = replay_buffer.dones
-  # print(actions)
