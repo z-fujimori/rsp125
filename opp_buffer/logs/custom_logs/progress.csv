@@ -1,0 +1,2 @@
+time/step,rollout/exploration_rate,reward/player_1,reward/player_0
+0,0.05,555.0,517.0
