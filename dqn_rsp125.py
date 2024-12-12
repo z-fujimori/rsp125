@@ -96,6 +96,6 @@ if __name__ == '__main__':
   id = np.random.RandomState(1000).randint(1, 10000)
 
   output_file_name = 'alternate_' + str(learn_rate) + "_" + str(num_iterations) + "_1.csv"
-  display_percentage_of_hand(act_his_a, act_his_b)
+  display_percentage_of_hand(act_his_a, act_his_b, output_file_name)
   print(id)
   plot_rews(rew_his_a, rew_his_b, id, learn_rate)

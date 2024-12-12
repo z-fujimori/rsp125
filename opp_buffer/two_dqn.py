@@ -10,7 +10,7 @@ logger = configure("logs/custom_logs", ["stdout", "csv"])
 
 learn_rate = 0.0005   #  学習りつ DQNのデフォルトは1e-3
 gamma = 0.99    #    割引率   デフォルトは0.99
-learn_count = 1
+learn_count = 500
 
 def main(goal=100):
   act_len_0 = []
@@ -24,9 +24,13 @@ def main(goal=100):
     learning_starts=0,
     gradient_steps=0,
     verbose=0,
-    learning_rate=learn_rate   #  学習りつ
+    learning_rate=learn_rate,   #  学習りつ
   )
-  model1 = DQN("MlpPolicy", dummy_env, learning_rate=learn_rate)   #  学習りつ
+  model1 = DQN(
+    "MlpPolicy", 
+    dummy_env, 
+    learning_rate=learn_rate*10,   #  学習りつ
+  )
   model0.set_env(RSP125(opp=model1, goal=100))
   model1.set_env(RSP125(opp=model0, goal=100)) # 実際は使わないので不要かも
   model0.set_logger(logger)
@@ -40,7 +44,11 @@ def main(goal=100):
   for i in range(learn_count):
     rew_0 = 0
     rew_1 = 0
-    model0.learn(total_timesteps=1_000, log_interval=100) # log_interval を調整で表示間隔
+    model0.learn(total_timesteps=1_000, log_interval=100) # log_interval を調整で表示間
+
+    # model1.replay_buffer = model0.opp_replay_buffer   #   試行移動
+    model0.set_env(RSP125(opp=model1, goal=100))
+    
     reward0 = model0.replay_buffer.rewards.sum()
     # reward1 = model1.replay_buffer.rewards.sum()  ここに疑問？
     reward1 = model0.opp_replay_buffer.rewards.sum()
@@ -54,9 +62,12 @@ def main(goal=100):
     model0.logger.record("time/step", i)
     model0.logger.dump(step=i) # 出力
     # actionを記録
-    for action in model0.replay_buffer.actions[:1000]:
+    for i,action in enumerate(model0.replay_buffer.actions[:1000]):
+      # print("[",i,"] action: ",action[0],"   rew: ",model0.replay_buffer.rewards[i])
       act_len_0.append(action[0])  # [[2]],,,,の形で入っているが、display_percentage_of_hand()で[2] の形で扱っているため
-    for action in model1.replay_buffer.actions[:1000]:
+    # print("\n---\n")
+    for i,action in enumerate(model1.replay_buffer.actions[:1000]):
+      # print("[",i,"] action: ",action[0],"   rew: ",model1.replay_buffer.rewards[i])
       act_len_1.append(action[0])
     # 報酬の合計を記録
     for rew in model0.replay_buffer.rewards[:1000]:
