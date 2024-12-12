@@ -3,12 +3,10 @@ from enum import IntEnum
 import gymnasium as gym
 import numpy as np
 
-
 class Actions(IntEnum):
   R = 0
   S = 1
   P = 2
-
 
 class RSP125(gym.Env):
   metadata = {'render_modes': ['human']}
