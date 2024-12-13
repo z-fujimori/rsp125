@@ -87,6 +87,7 @@ def two_player():
   
   return playerA, playerB, action_history_a, action_history_b, reward_history_a, reward_history_b
 
+
 if __name__ == '__main__':
   
   # ２人のプレイヤー
