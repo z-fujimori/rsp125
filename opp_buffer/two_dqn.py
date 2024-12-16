@@ -1,4 +1,6 @@
-from opp_buffer import DQN
+# from opp_buffer import DQN
+from stable_baselines3 import DQN
+import numpy as np
 from stable_baselines3.common.logger import configure
 from rsp125 import RSP125
 import sys
@@ -81,7 +83,7 @@ def main(goal=100):
     model1.train(gradient_steps=1000, batch_size=32)
     model0.replay_buffer.reset()
     model1.replay_buffer.reset()
-  
+
   print(model0.replay_buffer)
   print(len(model0.replay_buffer.rewards))
   model0.logger.record("custom_metric", 42)

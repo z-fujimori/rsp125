@@ -25,7 +25,8 @@ class DQN(_DQN):
   def _store_transition(
     self, replay_buffer, buffer_action, new_obs, reward, dones, infos
   ):
-    opp_buffer_action = new_obs[..., -1]
+    # opp_buffer_action = new_obs[..., -1]
+    opp_buffer_action = new_obs[..., -1].copy()
     for i, info in enumerate(infos):
       if (terminal_obs := info.get("terminal_observation")) is not None:
         opp_buffer_action[i] = terminal_obs[-1]

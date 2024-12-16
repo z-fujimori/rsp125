@@ -46,7 +46,7 @@ class RSP125(gym.Env):
     return self._get_obs(), self._get_info()
 
   def step(self, action):
-    opp_action = self.opp.predict(self._get_obs(opp=True))[0]
+    opp_action = self.opp.predict(self._get_obs(opp=True),deterministic=False)[0] # deterministic Falseで探索モード
     reward, opp_reward = self._get_reward(action, opp_action)
     self._action_history[self.n_history + self.game_count] = action, opp_action
     self._reward_history[self.game_count] = reward, opp_reward
@@ -70,12 +70,12 @@ class UniformAgent:
   def __init__(self, rng):
     self.rng = rng
 
-  def predict(self, obs):
+  def predict(self, obs, deterministic=False): # deterministic Falseで探索モード
     return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3)), None
 
 
 class InputAgent:
-  def predict(self, obs):
+  def predict(self, obs, deterministic=False): # deterministic Falseで探索モード
     print('履歴')
     for o in obs.reshape(-1, 2):
       if o[0] < 3:
