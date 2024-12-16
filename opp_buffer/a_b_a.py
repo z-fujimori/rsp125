@@ -1,7 +1,8 @@
-from opp_buffer import DQN
-# from stable_baselines3 import DQN
+# from opp_buffer import DQN
+from stable_baselines3 import DQN
 from stable_baselines3.common.logger import configure
 from rsp125 import RSP125
+import numpy as np
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -33,7 +34,9 @@ def append_act_rew_env1(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   rew_1.append(sum_rew_1)
   return act_0, rew_0, act_1, rew_1
 
+seed = 100
 def main(goal=100):
+  np.random.seed(seed) # シードを揃える
   learn_rate = 0.0005   #  学習りつ DQNのデフォルトは1e-3
   gamma = 0.99    #    割引率   デフォルトは0.99
   num_trials = 700
@@ -51,6 +54,7 @@ def main(goal=100):
     gradient_steps=-1,
     verbose=0,
     learning_rate=learn_rate,   #  学習りつ
+    device="cuda", # GPUを使用 "cpu"と書くとCPU使用
   )
   model1 = DQN(
     "MlpPolicy", 
@@ -59,6 +63,7 @@ def main(goal=100):
     gradient_steps=-1,
     verbose=0,
     learning_rate=learn_rate,   #  学習りつ
+    device="cuda",
   )
   # model0.set_env(RSP125(opp=model1, goal=100))
   # model1.set_env(RSP125(opp=model0, goal=100))
@@ -74,11 +79,11 @@ def main(goal=100):
     # 評価phase (model0固定 model1固定)
     # # model1.gradient_steps= 0
     # # model1.learn(total_timesteps=1_000, log_interval=100)
-    # obs, info  = env1.reset()
-    # for k in range(goal):
-    #   action = model1.predict(obs, deterministic=True)[0]
-    #   obs, reward, terminated, truncated, info = env1.step(action)
-    # act_len_0, rew_len_0, act_len_1, rew_len_1 = append_act_rew_env1(act_len_0, rew_len_0, act_len_1, rew_len_1, env1._action_history[5:], env1._reward_history)
+    obs, info  = env1.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = env1.step(action)
+    act_len_0, rew_len_0, act_len_1, rew_len_1 = append_act_rew_env1(act_len_0, rew_len_0, act_len_1, rew_len_1, env1._action_history[5:], env1._reward_history)
 
     # 学習phase (model0固定 model1学習)
     # # model1.replay_buffer.reset()
@@ -96,7 +101,7 @@ def main(goal=100):
 
     print(f"i: {i}, reward0: {rew_len_0[i]}, reward1: {rew_len_1[i]}")
   
-  output_file_name = 'env0_new_oppDQN_two_player_' + str(learn_rate) + "_" + str(num_trials) + "_1.csv"
+  output_file_name = 'new_originDQN_two_player_' + str(learn_rate) + "_" + str(num_trials) + "_seed" + str(seed) + "_1.csv"
   display_percentage_of_hand(act_len_0, act_len_1, output_file_name)
   plot_rews(rew_len_0, rew_len_1, output_file_name, learn_rate)
 
