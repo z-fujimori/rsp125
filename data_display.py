@@ -28,11 +28,11 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
 
     plt.legend(framealpha=0.7) # 透過度
     # 表示
-    plt.show()
+    # plt.show()
     # 保存
     file_path = os.path.join(f"./results/{log_dir}/rew_plot", log_name)
     plt.savefig(file_path)
-    plt.close()
+    # plt.close()
 
   save_plot_rews(rews1_timing1, rews2_timing1, result_name, f"{result_name}_timing1.png")
   save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2.png")
