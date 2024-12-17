@@ -47,12 +47,10 @@ def main(goal=100):
     rew_0 = 0
     rew_1 = 0
     model0.learn(total_timesteps=1_000, log_interval=100) # log_interval を調整で表示間
-
-    # model1.replay_buffer = model0.opp_replay_buffer   #   試行移動
+    
     model0.set_env(RSP125(opp=model1, goal=100))
     
     reward0 = model0.replay_buffer.rewards.sum()
-    # reward1 = model1.replay_buffer.rewards.sum()  ここに疑問？
     reward1 = model0.opp_replay_buffer.rewards.sum()
 
     print(model0.replay_buffer)
@@ -66,7 +64,7 @@ def main(goal=100):
     # actionを記録
     for i,action in enumerate(model0.replay_buffer.actions[:1000]):
       # print("[",i,"] action: ",action[0],"   rew: ",model0.replay_buffer.rewards[i])
-      act_len_0.append(action[0])  # [[2]],,,,の形で入っているが、display_percentage_of_hand()で[2] の形で扱っているため
+      act_len_0.append(action[0])  # actionは[[2]],,,,の形で入っているが、display_percentage_of_hand()で[2] の形で扱っているため1段階目を剥がして格納
     # print("\n---\n")
     for i,action in enumerate(model1.replay_buffer.actions[:1000]):
       # print("[",i,"] action: ",action[0],"   rew: ",model1.replay_buffer.rewards[i])
