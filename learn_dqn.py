@@ -40,15 +40,17 @@ def main(goal=100):
   start_time = time.time()
 
 
-  num_trials = 10
-  seed_value = 42 # シードを揃える
+  num_trials = 300
   learn_rate = 0.0005   #  学習率 DQNのデフォルトは1e-3
   gamma = 0.99    #    割引率   デフォルトは0.99
-  freq_step = 100
-  train_freq = (freq_step, "step") # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
-  gradient_steps = 10 # learn()ごとに何回学習するか デフォルトは１ 
+  gradient_steps = 90 # learn()ごとに何回学習するか デフォルトは１ 
   batch_size = 256 #  default=256
   # gradient_steps × batch_size が1回のトレーニングで使用されるサンプル数
+  freq_step = 20
+  train_freq = (freq_step, "step") # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
+  seed_value = 42 # シードを揃える
+
+  print(f"num_trials{num_trials} learn_rate{learn_rate} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step} seed_value{seed_value}")
 
   act_len_0_timing1 = []
   act_len_1_timing1 = []
@@ -125,7 +127,7 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  result_log_name = f"a{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_train_freq{freq_step}_trial{num_trials}_batchSize{batch_size}_seed{seed}"
+  result_log_name = f"aopp検証_07-52_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}_trial{num_trials}_batchSize{batch_size}_seed{seed}"
   os.makedirs(f"./results/{result_log_name}", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
@@ -134,7 +136,7 @@ def main(goal=100):
   plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, learn_rate)
 
   all_finish_time = time.time()
-  print(f"all finish {all_finish_time - start_time:.2f}\n{result_log_name}")
+  print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
 
 if __name__ == "__main__":
   main()
