@@ -3,6 +3,11 @@ import numpy as np
 import matplotlib.font_manager as fm
 import csv
 import os
+from matplotlib import rcParams
+from matplotlib.ticker import MultipleLocator
+
+# フォントを日本語対応のものに設定
+rcParams['font.family'] = 'IPAexGothic'
 
 def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name,learning_rate):
   
@@ -13,7 +18,7 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     sum_rews = [(r1 + r2) / 2 for r1, r2 in zip(rews1, rews2)]
 
     # プロット
-    plt.figure(figsize=(60, 30))  # グラフのサイズを指定
+    plt.figure(figsize=(180, 60))  # グラフのサイズを指定
     plt.plot(x, sum_rews, label="Total rewerd", color="gray")
     plt.plot(x, rews1, label="PlayerA", color="blue")
     plt.plot(x, rews2, label="PlayerB", color="orange")
@@ -23,7 +28,12 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     plt.xlabel("Episode")
     plt.ylabel("Value")
     plt.legend(framealpha=0.7)  # 凡例を追加
-    plt.grid(True)  # グリッドを表示
+    # x=250に太線を引く
+    plt.axvline(y=250, color='red', linewidth=2.5, linestyle='--')
+    # グリッド目盛り設定
+    plt.gca().xaxis.set_major_locator(MultipleLocator(25))
+    plt.gca().yaxis.set_major_locator(MultipleLocator(25))
+    plt.grid()  # グリッドを表示
     plt.tight_layout()  # レイアウトを調整
 
     plt.legend(framealpha=0.7) # 透過度

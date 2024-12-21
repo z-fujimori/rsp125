@@ -16,7 +16,7 @@ class RSP125(gym.Env):
     self.reward_range = 0.0, 5.0 # 報酬の最小値、最大値
     self.observation_space = gym.spaces.MultiDiscrete((4,) * (2 * n_history))
 
-    self.opp = opp or UniformAgent(self.np_random)
+    self.opp = opp or TitForTatAgent(self.np_random)
     self.n_history = n_history
     self.goal = goal
 
@@ -73,6 +73,24 @@ class UniformAgent:
   def predict(self, obs, deterministic=False): # deterministic Falseで探索モード
     return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3)), None
 
+
+class NashAgent(UniformAgent):
+  def predict(self, obs, deterministic=False):
+    return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
+  
+class TitForTatAgent(NashAgent):
+  def predict(self, obs, deterministic=False):
+    last_strategy_hand = obs[-1]
+    last_opponent_hand = obs[-2]
+    # 繰り返し対策は抜きました
+    if last_strategy_hand == 2 and last_opponent_hand == 0:
+      # print("次はグーを出す")
+      return Actions["R"], None
+    elif last_strategy_hand == 0 and last_opponent_hand == 2:
+      # print("次はパーを出す")
+      return Actions["P"], None
+    else:
+      return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
 
 class InputAgent:
   def predict(self, obs, deterministic=False): # deterministic Falseで探索モード
