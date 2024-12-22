@@ -29,7 +29,7 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     plt.ylabel("Value")
     plt.legend(framealpha=0.7)  # 凡例を追加
     # x=250に太線を引く
-    plt.axvline(y=250, color='red', linewidth=2.5, linestyle='--')
+    # plt.axvline(y=250, color='red', linewidth=2.5, linestyle='--')
     # グリッド目盛り設定
     plt.gca().xaxis.set_major_locator(MultipleLocator(25))
     plt.gca().yaxis.set_major_locator(MultipleLocator(25))
