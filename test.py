@@ -125,7 +125,7 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  # result_log_name = f"aopp検証_originDQN_mod0*{learn_rate_leverage}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_seed{seed_value}"
+  result_log_name = f"aopp検証_originDQN_mod0*{learn_rate_leverage}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_seed{seed_value}"
   # os.makedirs(f"./results/{result_log_name}", exist_ok=True)
   # os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   # os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
