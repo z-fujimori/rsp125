@@ -40,8 +40,8 @@ def main(goal=100):
   start_time = time.time()
 
 
-  num_trials = 15000
-  learn_rate = 0.00005   #  学習率 DQNのデフォルトは1e-3
+  num_trials = 10000
+  learn_rate = 0.0000005   #  学習率 DQNのデフォルトは1e-3
   gamma = 0.99    #    割引率   デフォルトは0.99
   gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
   batch_size = 256 #  default=256

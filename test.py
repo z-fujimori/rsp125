@@ -40,7 +40,7 @@ def main(goal=100):
   start_time = time.time()
 
 
-  num_trials = 1000
+  num_trials = 5
   learn_rate = 0.00008   #  学習率 DQNのデフォルトは1e-3
   learn_rate_leverage = 1.4   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
   gamma = 0.99    #    割引率   デフォルトは0.99
@@ -50,8 +50,8 @@ def main(goal=100):
   freq_step = 10
   freq_word = "episode"
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
-  policy_kwargs = dict(net_arch=[64, 64]) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
   seed_value = 42 # シードを揃える
+  policy_kwargs = dict(net_arch=[128, 128, 128]) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
 
   print(f"num_trials{num_trials} learn_rate{learn_rate} learn_rate_leverage{learn_rate_leverage} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value}")
 
@@ -96,29 +96,20 @@ def main(goal=100):
   env0.opp = model1
   env1.opp = model0
 
+  # modelのNNについて
+  print("隠れ層,ニューロン数: \n",model1.policy.q_net)
+
   for i in range(num_trials):
-    # 学習phase (model0学習 model1固定)
-    # # model0.replay_buffer.reset()
-    # # model0.gradient_steps = 100
     model0.learn(total_timesteps=1_000, log_interval=100)
 
-    # 評価phase (model0固定 model1固定)
-    # # model1.gradient_steps= 0
-    # # model1.learn(total_timesteps=1_000, log_interval=100)
     obs, info  = env1.reset()
     for k in range(goal):
       action = model1.predict(obs, deterministic=True)[0]
       obs, reward, terminated, truncated, info = env1.step(action)
     act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1 = append_act_rew_env1(act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1, env1._action_history[5:], env1._reward_history)
 
-    # 学習phase (model0固定 model1学習)
-    # # model1.replay_buffer.reset()
-    # # model1.gradient_steps= 100
     model1.learn(total_timesteps=1_000, log_interval=100)
 
-    # 評価phase (model0固定 model1固定)
-    # # model0.gradient_steps = 0
-    # # model0.learn(total_timesteps=1_000, log_interval=100)
     obs, info  = env0.reset()
     for k in range(goal):
       action = model0.predict(obs, deterministic=True)[0]       # ！！！！！！！！！ここは互い違いでなければいけない？
@@ -134,15 +125,15 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  result_log_name = f"aopp検証_originDQN_mod0*{learn_rate_leverage}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_seed{seed_value}"
-  os.makedirs(f"./results/{result_log_name}", exist_ok=True)
-  os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
-  os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
+  # result_log_name = f"aopp検証_originDQN_mod0*{learn_rate_leverage}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_seed{seed_value}"
+  # os.makedirs(f"./results/{result_log_name}", exist_ok=True)
+  # os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
+  # os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
 
   all_plot_time = time.time()
-  run_time_log = f"all plot {(all_plot_time - start_time)/60:.2f} min\n{result_log_name}"
-  display_percentage_of_hand(act_len_0_timing1, act_len_1_timing1, act_len_0_timing2, act_len_1_timing2, result_log_name, run_time_log)
-  plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, run_time_log)
+  # run_time_log = f"all plot {(all_plot_time - start_time)/60:.2f} min\n{result_log_name}"
+  # display_percentage_of_hand(act_len_0_timing1, act_len_1_timing1, act_len_0_timing2, act_len_1_timing2, result_log_name, run_time_log)
+  # plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, run_time_log)
 
   all_finish_time = time.time()
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")

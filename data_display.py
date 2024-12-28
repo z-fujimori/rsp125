@@ -7,9 +7,9 @@ from matplotlib import rcParams
 from matplotlib.ticker import MultipleLocator
 
 # フォントを日本語対応のものに設定
-rcParams['font.family'] = 'IPAexGothic'
+rcParams['font.family'] = 'Osaka'
 
-def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name,learning_rate):
+def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name='output',run_time_log='--'):
   
   def save_plot_rews(rews1, rews2, log_dir, log_name):
     x = np.arange(1, min(len(rews1), len(rews2)) + 1)  # xは最小の長さに合わせる
@@ -24,7 +24,7 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     plt.plot(x, rews2, label="PlayerB", color="orange")
 
     # グラフの設定
-    plt.title(f'{log_name}')
+    plt.title(f'{log_name}_{run_time_log}min')
     plt.xlabel("Episode")
     plt.ylabel("Value")
     plt.legend(framealpha=0.7)  # 凡例を追加
@@ -47,7 +47,7 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
   save_plot_rews(rews1_timing1, rews2_timing1, result_name, f"{result_name}_timing1.png")
   save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2.png")
 
-def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, hist_b_timing2, result_name='output'):
+def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, hist_b_timing2, result_name='output',run_time_log='--'):
 
   def save_hand_hist(hist_a, hist_b, log_dir, log_name):
     percentage = np.zeros((3, 3), dtype=int) 
@@ -66,6 +66,7 @@ def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, h
     with open(result_name, mode='w', newline='') as file:
       writer = csv.writer(file)
       # ヘッダーを書き込む
+      writer.writerow(["run time", f"{run_time_log} min"])
       writer.writerow(["Round", "a\\b", "G", "C", "P"])
       for i, per in enumerate(total_pers):
         # ラウンド名

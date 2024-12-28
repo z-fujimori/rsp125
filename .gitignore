@@ -1,5 +1,6 @@
 __pycache__/
 .venv/
 results/
+results_pool/
 .DS_Store
 .python-version
