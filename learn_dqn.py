@@ -35,25 +35,24 @@ def append_act_rew_env1(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   rew_1.append(sum_rew_1)
   return act_0, rew_0, act_1, rew_1
 
-seed = 100
 def main(goal=100):
   start_time = time.time()
 
-
-  num_trials = 1000
-  learn_rate = 0.00008   #  学習率 DQNのデフォルトは1e-3
-  learn_rate_leverage = 1.4   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
+  num_trials = 2_000
+  learn_rate = 0.0005   #  学習率 DQNのデフォルトは1e-3
+  learn_rate_leverage = 1.0   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
   gamma = 0.99    #    割引率   デフォルトは0.99
-  gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
+  gradient_steps = 900 # learn()ごとに何回学習するか デフォルトは１ 
   batch_size = 256 #  default=256
   # gradient_steps × batch_size が1回のトレーニングで使用されるサンプル数
   freq_step = 10
   freq_word = "episode"
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
-  policy_kwargs = dict(net_arch=[64, 64]) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
+  layer = [64,64]
+  policy_kwargs = dict(net_arch=layer) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
   seed_value = 42 # シードを揃える
 
-  print(f"num_trials{num_trials} learn_rate{learn_rate} learn_rate_leverage{learn_rate_leverage} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value}")
+  print(f"num_trials{num_trials} learn_rate{learn_rate} learn_rate_leverage{learn_rate_leverage} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value} nn_layer{layer}")
 
   act_len_0_timing1 = []
   act_len_1_timing1 = []
@@ -74,6 +73,7 @@ def main(goal=100):
     gradient_steps=gradient_steps, 
     verbose=0,
     gamma=gamma,
+    batch_size=batch_size,
     learning_rate=learn_rate*learn_rate_leverage,   #  学習率
     # device="cuda", # GPUを使用 "cpu"と書くとCPU使用
     policy_kwargs=policy_kwargs # nnの設定
@@ -87,6 +87,7 @@ def main(goal=100):
     gradient_steps=gradient_steps,
     verbose=0,
     gamma=gamma,
+    batch_size=batch_size,
     learning_rate=learn_rate,   #  学習りつ
     # device="cuda",
     policy_kwargs=policy_kwargs # nnの設定
@@ -134,7 +135,7 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  result_log_name = f"aopp検証_originDQN_mod0*{learn_rate_leverage}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_seed{seed_value}"
+  result_log_name = f"aopp検証_originDQN_mod0*{learn_rate_leverage}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_nn{str(layer)}_seed{seed_value}"
   os.makedirs(f"./results/{result_log_name}", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)

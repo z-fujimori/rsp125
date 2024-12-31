@@ -7,7 +7,7 @@ import time
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data_display import plot_rews,display_percentage_of_hand
+from data_display import plot_rews,display_percentage_of_hand,plot_hand_hist_csv
 
 def append_act_rew_env0(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   for a in act_hist:
@@ -138,5 +138,11 @@ def main(goal=100):
   all_finish_time = time.time()
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
 
+def hand():
+  csv_file_name = "results_pool/results_0.0005_leveerageあり/aopp検証_originDQN_mod0*1.2_2024-1219-22:08:42_learningRate0.0005_gamma0.99_gradientSteps900_trainFreq10episode_trial1000_batchSize256_seed40/hand_csv/aopp検証_originDQN_mod0*1.2_2024-1219-22:08:42_learningRate0.0005_gamma0.99_gradientSteps900_trainFreq10episode_trial1000_batchSize256_seed40_timing2.csv"
+
+  plot_hand_hist_csv(csv_file_name)
+
 if __name__ == "__main__":
-  main()
+  # main()
+  hand()

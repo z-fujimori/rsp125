@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import matplotlib.font_manager as fm
 import csv
 import os
@@ -18,7 +19,7 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     sum_rews = [(r1 + r2) / 2 for r1, r2 in zip(rews1, rews2)]
 
     # プロット
-    plt.figure(figsize=(180, 60))  # グラフのサイズを指定
+    plt.figure(figsize=(110, 40))  # グラフのサイズを指定
     plt.plot(x, sum_rews, label="Total rewerd", color="gray")
     plt.plot(x, rews1, label="PlayerA", color="blue")
     plt.plot(x, rews2, label="PlayerB", color="orange")
@@ -40,12 +41,14 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     # 表示
     # plt.show()
     # 保存
-    file_path = os.path.join(f"./results/{log_dir}/rew_plot", log_name)
+    file_path = os.path.join(f"./results/{log_dir}/rew_plot", f"{log_name}.png")
     plt.savefig(file_path)
     # plt.close()
 
-  save_plot_rews(rews1_timing1, rews2_timing1, result_name, f"{result_name}_timing1.png")
-  save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2.png")
+  save_plot_rews(rews1_timing1, rews2_timing1, result_name, f"{result_name}_timing1")
+  save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2")
+
+
 
 def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, hist_b_timing2, result_name='output',run_time_log='--'):
 
@@ -59,15 +62,14 @@ def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, h
       percentage[hand_a][hand_b] += 1
       if i%100 == 99:
         total_pers.append(percentage)
-        percentage = np.zeros((3, 3), dtype=int) 
+        percentage = np.zeros((3, 3), dtype=int)
 
     # CSV保存部分
-    result_name = f"./results/{log_dir}/hand_csv/{log_name}"
+    result_name = f"./results/{log_dir}/hand_csv/{log_name}.csv"
     with open(result_name, mode='w', newline='') as file:
       writer = csv.writer(file)
       # ヘッダーを書き込む
-      writer.writerow(["run time", f"{run_time_log} min"])
-      writer.writerow(["Round", "a\\b", "G", "C", "P"])
+      writer.writerow(["Round", "a\\b", "G", "C", "P","","run time", f"{run_time_log} min"])
       for i, per in enumerate(total_pers):
         # ラウンド名
         writer.writerow([f'Round {i+1}'])
@@ -77,5 +79,84 @@ def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, h
         writer.writerow(["", "P", *per[2]])
         writer.writerow([])  # 空行を挿入して次のラウンドと区切る
   
-  save_hand_hist(hist_a_timing1, hist_b_timing1, result_name, f"{result_name}_timing1.csv")
-  save_hand_hist(hist_a_timing2, hist_b_timing2, result_name, f"{result_name}_timing2.csv")
+    # plotデータ作成
+    hand_plot_hist = [
+      [[],[],[]],
+      [[],[],[]],
+      [[],[],[]]
+    ] 
+    for i in range(int(len(total_pers)/3)):
+      hand_plot_hist[0][0].append(total_pers[i*3][0])
+      hand_plot_hist[0][1].append(total_pers[i*3][1])
+      hand_plot_hist[0][2].append(total_pers[i*3][2])
+      hand_plot_hist[1][0].append(total_pers[i*3+1][0])
+      hand_plot_hist[1][1].append(total_pers[i*3+1][1])
+      hand_plot_hist[1][2].append(total_pers[i*3+1][2])
+      hand_plot_hist[2][0].append(total_pers[i*3+2][0])
+      hand_plot_hist[2][1].append(total_pers[i*3+2][1])
+      hand_plot_hist[2][2].append(total_pers[i*3+2][2])
+    hand_plt = create_plt_data(hand_plot_hist[0][0],hand_plot_hist[0][1],hand_plot_hist[0][2],hand_plot_hist[1][0],hand_plot_hist[1][1],hand_plot_hist[1][2],hand_plot_hist[2][0],hand_plot_hist[2][1],hand_plot_hist[2][2])
+    file_path = os.path.join(f"./results/{log_dir}/hand_csv", f"{log_name}.png")
+    hand_plt.savefig(file_path)
+
+  save_hand_hist(hist_a_timing1, hist_b_timing1, result_name, f"{result_name}_timing1")
+  save_hand_hist(hist_a_timing2, hist_b_timing2, result_name, f"{result_name}_timing2")
+
+
+def plot_hand_hist_csv(csv_file):
+  df = pd.read_csv(csv_file)
+  df = df.drop(0)
+  # ROUND 〜　を削除
+  indices_to_remove = range(4, len(df), 4)
+  df = df.drop(indices_to_remove)
+  
+  trial = len(df)/3
+  hand_plot_hist = [
+    [[],[],[]],
+    [[],[],[]],
+    [[],[],[]]
+  ] 
+  for i in range(int(trial)):
+    hand_plot_hist[0][0].append(df.iloc[i*3]["G"])
+    hand_plot_hist[0][1].append(df.iloc[i*3]["C"])
+    hand_plot_hist[0][2].append(df.iloc[i*3]["P"])
+    hand_plot_hist[1][0].append(df.iloc[i*3+1]["G"])
+    hand_plot_hist[1][1].append(df.iloc[i*3+1]["C"])
+    hand_plot_hist[1][2].append(df.iloc[i*3+1]["P"])
+    hand_plot_hist[2][0].append(df.iloc[i*3+2]["G"])
+    hand_plot_hist[2][1].append(df.iloc[i*3+2]["C"])
+    hand_plot_hist[2][2].append(df.iloc[i*3+2]["P"])
+  plt = create_plt_data(hand_plot_hist[0][0],hand_plot_hist[0][1],hand_plot_hist[0][2],hand_plot_hist[1][0],hand_plot_hist[1][1],hand_plot_hist[1][2],hand_plot_hist[2][0],hand_plot_hist[2][1],hand_plot_hist[2][2])
+
+  plt.show()
+
+
+def create_plt_data(rew_g_g, rew_g_c, rew_g_p, rew_c_g, rew_c_c, rew_c_p, rew_p_g, rew_p_c, rew_p_p, file_name="hist"):
+
+  plt.figure(figsize=(100, 10))  # グラフのサイズを指定
+  plt.plot(range(len(rew_g_g)), rew_g_g, label="A: g, B: g", color="brown")
+  plt.plot(range(len(rew_g_g)), rew_g_c, label="A: g, B: c", color="orange")
+  plt.plot(range(len(rew_g_g)), rew_g_p, label="A: g, B: p", color="blue")
+  plt.plot(range(len(rew_g_g)), rew_c_g, label="A: c, B: g", color="green")
+  plt.plot(range(len(rew_g_g)), rew_c_c, label="A: c, B: c", color="gray")
+  plt.plot(range(len(rew_g_g)), rew_c_p, label="A: c, B: p", color="pink")
+  plt.plot(range(len(rew_g_g)), rew_p_g, label="A: p, B: g", color="red")
+  plt.plot(range(len(rew_g_g)), rew_p_c, label="A: p, B: c", color="olive")
+  plt.plot(range(len(rew_g_g)), rew_p_p, label="A: p, B: p", color="purple")
+
+  # グラフの設定
+  plt.title(f'{file_name}')
+  plt.xlabel("count")
+  plt.ylabel("time")
+  # plt.legend(framealpha=0.7)  # 凡例を追加
+  # x=250に太線を引く
+  # plt.axvline(y=250, color='red', linewidth=2.5, linestyle='--')
+  # グリッド目盛り設定
+  plt.gca().xaxis.set_major_locator(MultipleLocator(25))
+  plt.gca().yaxis.set_major_locator(MultipleLocator(5))
+  plt.grid()  # グリッドを表示
+  plt.tight_layout()  # レイアウトを調整
+
+  plt.legend(framealpha=0.6) # 透過度
+  # 表示
+  return plt

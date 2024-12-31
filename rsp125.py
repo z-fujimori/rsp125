@@ -90,7 +90,8 @@ class TitForTatAgent(NashAgent):
       # print("次はパーを出す")
       return Actions["P"], None
     else:
-      return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
+      # return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
+      return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3)), None
 
 class InputAgent:
   def predict(self, obs, deterministic=False): # deterministic Falseで探索モード
