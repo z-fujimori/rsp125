@@ -145,4 +145,6 @@ def hand():
 
 if __name__ == "__main__":
   # main()
-  hand()
+  # hand()
+  loaded_array = np.load('./results/サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0102-03:15:44_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial20_batchSize256_nn[64, 64]_seed42/rew_plot/rews1_timing1.npy')
+  print(loaded_array)

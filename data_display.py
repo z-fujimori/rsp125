@@ -1,38 +1,57 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-import csv
-import os
+import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib.ticker import MultipleLocator
+from matplotlib.ticker import FuncFormatter
+import csv
+import os
 
 # フォントを日本語対応のものに設定
 rcParams['font.family'] = 'Osaka'
 
-def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name='output',run_time_log='--'):
+def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name='output',run_time_log='--',num_trials=10000):
+  np.save(f"./results/{result_name}/rew_plot/rews1_timing1",rews1_timing1)
+  np.save(f"./results/{result_name}/rew_plot/rews2_timing1",rews2_timing1)
+  np.save(f"./results/{result_name}/rew_plot/rews1_timing2",rews1_timing2)
+  np.save(f"./results/{result_name}/rew_plot/rews2_timing2",rews2_timing2)
   
   def save_plot_rews(rews1, rews2, log_dir, log_name):
-    x = np.arange(1, min(len(rews1), len(rews2)) + 1)  # xは最小の長さに合わせる
-    rews1 = rews1[:len(x)]
-    rews2 = rews2[:len(x)]
-    sum_rews = [(r1 + r2) / 2 for r1, r2 in zip(rews1, rews2)]
+    step = 5
+    # xとrewsの長さを調整しながら間引き
+    min_len = min(len(rews1), len(rews2)) // step
+    x = np.arange(1, min_len + 1)
+    rews1 = rews1[:min_len * step:step]
+    rews2 = rews2[:min_len * step:step]
+    sum_rews = (np.array(rews1) + np.array(rews2)) / 2
+
+    mpl.rcParams.update({'font.size': 64})
 
     # プロット
-    plt.figure(figsize=(110, 40))  # グラフのサイズを指定
+    plt.figure(figsize=(80, 40))  # グラフのサイズを指定
     plt.plot(x, sum_rews, label="Total rewerd", color="gray")
     plt.plot(x, rews1, label="PlayerA", color="blue")
     plt.plot(x, rews2, label="PlayerB", color="orange")
 
+    # 軸ラベルを変更するためのFormatter
+    def multiply_by_five(x, pos):
+        return f'{x * 5:.0f}'  # 倍率5倍にし、小数点なしのフォーマット
+
     # グラフの設定
-    plt.title(f'{log_name}_{run_time_log}min')
+    # 軸設定
+    plt.gca().xaxis.set_major_formatter(FuncFormatter(multiply_by_five))
+    plt.xlim(0, num_trials//step)
+    plt.xticks(rotation=90) # 横軸のメモリの表記を縦書きにする
+    plt.title(f'{log_name}_{run_time_log}min', fontsize=32)
     plt.xlabel("Episode")
     plt.ylabel("Value")
     plt.legend(framealpha=0.7)  # 凡例を追加
     # x=250に太線を引く
     # plt.axvline(y=250, color='red', linewidth=2.5, linestyle='--')
     # グリッド目盛り設定
-    plt.gca().xaxis.set_major_locator(MultipleLocator(25))
+    plt.gca().xaxis.set_major_locator(MultipleLocator(50))
     plt.gca().yaxis.set_major_locator(MultipleLocator(25))
     plt.grid()  # グリッドを表示
     plt.tight_layout()  # レイアウトを調整

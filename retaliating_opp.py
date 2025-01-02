@@ -40,8 +40,8 @@ def main(goal=100):
   start_time = time.time()
 
 
-  num_trials = 10000
-  learn_rate = 0.0000005   #  学習率 DQNのデフォルトは1e-3
+  num_trials = 5000
+  learn_rate = 0.00005   #  学習率 DQNのデフォルトは1e-3
   gamma = 0.99    #    割引率   デフォルトは0.99
   gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
   batch_size = 256 #  default=256
@@ -51,7 +51,7 @@ def main(goal=100):
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
   seed_value = 42 # シードを揃える
 
-  print(f"しっぺ返しと対戦 num_trials{num_trials} learn_rate{learn_rate} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value}")
+  print(f"しっぺ返しと対戦[β] num_trials{num_trials} learn_rate{learn_rate} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value}")
 
   act_len_0_timing1 = []
   act_len_1_timing1 = []
@@ -86,7 +86,7 @@ def main(goal=100):
       obs, reward, terminated, truncated, info = env0.step(action)
     act_len_0_timing2, rew_len_0_timing2, act_len_1_timing2, rew_len_1_timing2 = append_act_rew_env0(act_len_0_timing2, rew_len_0_timing2, act_len_1_timing2, rew_len_1_timing2, env0._action_history[5:], env0._reward_history)
   
-    print(f"i: {i}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
+    print(f"i: {i} / {num_trials}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
 
   end_time = time.time()
   print(f"Execution time: {end_time - start_time:.2f} seconds")
@@ -101,7 +101,7 @@ def main(goal=100):
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
 
   display_percentage_of_hand(act_len_0_timing1, act_len_1_timing1, act_len_0_timing2, act_len_1_timing2, result_log_name)
-  plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, learn_rate)
+  plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, learn_rate, num_trials)
 
   all_finish_time = time.time()
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
