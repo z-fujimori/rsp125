@@ -37,9 +37,9 @@ def append_act_rew_env1(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
 def main(goal=100):
   start_time = time.time()
 
-  num_trials = 8000
-  learn_rate = 0.00005   #  学習率 DQNのデフォルトは1e-3
-  learn_rate_leverage = 1.4   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
+  num_trials = 10000
+  learn_rate = 0.0005   #  学習率 DQNのデフォルトは1e-3
+  learn_rate_leverage = 1.0   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
   gamma = 0.99    #    割引率   デフォルトは0.99
   gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
   batch_size = 256 #  default=256
@@ -49,7 +49,7 @@ def main(goal=100):
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
   layer = [64,64]
   policy_kwargs = dict(net_arch=layer) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
-  seed_value = 40 # シードを揃える
+  seed_value = 42 # シードを揃える
 
   print(f"num_trials{num_trials} learn_rate{learn_rate} learn_rate_leverage{learn_rate_leverage} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value} nn_layer{layer}")
 

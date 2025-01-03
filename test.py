@@ -143,8 +143,34 @@ def hand():
 
   plot_hand_hist_csv(csv_file_name)
 
+def plot_rew_from_npy(path,save_name):
+  rews1_timing1 = np.load(f"{path}/rews1_timing1.npy")
+  rews1_timing2 = np.load(f"{path}/rews1_timing2.npy")
+  rews2_timing1 = np.load(f"{path}/rews2_timing1.npy")
+  rews2_timing2 = np.load(f"{path}/rews2_timing2.npy")
+
+  step=2
+  result_name=f"{save_name}_step{step}"
+  num_trials = len(rews1_timing1)
+  print(num_trials)
+
+  plot_rews(rews1_timing1, rews1_timing2, rews2_timing1, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False)
+
+
 if __name__ == "__main__":
   # main()
   # hand()
-  loaded_array = np.load('./results/サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0102-03:15:44_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial20_batchSize256_nn[64, 64]_seed42/rew_plot/rews1_timing1.npy')
-  print(loaded_array)
+
+  path = "./results/サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0103-07:30:03_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  plot_rew_from_npy(path,"サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0103-07:30:03_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_2")
+
+  # rews1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
+  # rews2 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
+  # step=3
+  # min_len = min(len(rews1), len(rews2)) // step
+  # x = np.arange(1, min_len + 1)
+  # rews1 = rews1[:min_len * step:step]
+  # rews2 = rews2[:min_len * step:step]
+
+  # print("rews1",rews1)
+  # print("rews2",rews2)
