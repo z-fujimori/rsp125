@@ -1,3 +1,4 @@
+# from opp_buffer import DQN
 from stable_baselines3 import DQN
 from stable_baselines3.common.logger import configure
 from rsp125 import RSP125
@@ -6,7 +7,7 @@ import time
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data_display import plot_rews,display_percentage_of_hand
+from data_display import plot_rews,display_percentage_of_hand,plot_hand_hist_csv
 
 def append_act_rew_env0(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   for a in act_hist:
@@ -34,12 +35,14 @@ def append_act_rew_env1(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   rew_1.append(sum_rew_1)
   return act_0, rew_0, act_1, rew_1
 
+seed = 100
 def main(goal=100):
   start_time = time.time()
 
-  num_trials = 10000
-  learn_rate = 0.0005   #  学習率 DQNのデフォルトは1e-3
-  learn_rate_leverage = 1.0   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
+
+  num_trials = 5
+  learn_rate = 0.00008   #  学習率 DQNのデフォルトは1e-3
+  learn_rate_leverage = 1.4   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
   gamma = 0.99    #    割引率   デフォルトは0.99
   gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
   batch_size = 256 #  default=256
@@ -47,11 +50,10 @@ def main(goal=100):
   freq_step = 10
   freq_word = "episode"
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
-  layer = [64,64]
-  policy_kwargs = dict(net_arch=layer) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
   seed_value = 42 # シードを揃える
+  policy_kwargs = dict(net_arch=[128, 128, 128]) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
 
-  print(f"num_trials{num_trials} learn_rate{learn_rate} learn_rate_leverage{learn_rate_leverage} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value} nn_layer{layer}")
+  print(f"num_trials{num_trials} learn_rate{learn_rate} learn_rate_leverage{learn_rate_leverage} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value}")
 
   act_len_0_timing1 = []
   act_len_1_timing1 = []
@@ -72,7 +74,6 @@ def main(goal=100):
     gradient_steps=gradient_steps, 
     verbose=0,
     gamma=gamma,
-    batch_size=batch_size,
     learning_rate=learn_rate*learn_rate_leverage,   #  学習率
     # device="cuda", # GPUを使用 "cpu"と書くとCPU使用
     policy_kwargs=policy_kwargs # nnの設定
@@ -86,7 +87,6 @@ def main(goal=100):
     gradient_steps=gradient_steps,
     verbose=0,
     gamma=gamma,
-    batch_size=batch_size,
     learning_rate=learn_rate,   #  学習りつ
     # device="cuda",
     policy_kwargs=policy_kwargs # nnの設定
@@ -96,39 +96,27 @@ def main(goal=100):
   env0.opp = model1
   env1.opp = model0
 
+  # modelのNNについて
+  print("隠れ層,ニューロン数: \n",model1.policy.q_net)
+
   for i in range(num_trials):
-    # 学習phase (model0学習 model1固定)
-    # # model0.replay_buffer.reset()
-    # # model0.gradient_steps = 100
     model0.learn(total_timesteps=1_000, log_interval=100)
 
-    # 評価phase (model0固定 model1固定)
-    # # model1.gradient_steps= 0
-    # # model1.learn(total_timesteps=1_000, log_interval=100)
     obs, info  = env1.reset()
     for k in range(goal):
       action = model1.predict(obs, deterministic=True)[0]
       obs, reward, terminated, truncated, info = env1.step(action)
     act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1 = append_act_rew_env1(act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1, env1._action_history[5:], env1._reward_history)
 
-    # 学習phase (model0固定 model1学習)
-    # # model1.replay_buffer.reset()
-    # # model1.gradient_steps= 100
     model1.learn(total_timesteps=1_000, log_interval=100)
 
-    # 評価phase (model0固定 model1固定)
-    # # model0.gradient_steps = 0
-    # # model0.learn(total_timesteps=1_000, log_interval=100)
     obs, info  = env0.reset()
     for k in range(goal):
       action = model0.predict(obs, deterministic=True)[0]       # ！！！！！！！！！ここは互い違いでなければいけない？
       obs, reward, terminated, truncated, info = env0.step(action)
     act_len_0_timing2, rew_len_0_timing2, act_len_1_timing2, rew_len_1_timing2 = append_act_rew_env0(act_len_0_timing2, rew_len_0_timing2, act_len_1_timing2, rew_len_1_timing2, env0._action_history[5:], env0._reward_history)
   
-    print(f"i: {i} / {num_trials}\ntiming1 reward0: {rew_len_0_timing1[i]}, reward1: {rew_len_1_timing1[i]}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
-
-  model0.save
-  model1.save
+    print(f"i: {i}\ntiming1 reward0: {rew_len_0_timing1[i]}, reward1: {rew_len_1_timing1[i]}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
 
   end_time = time.time()
   print(f"Execution time: {end_time - start_time:.2f} seconds")
@@ -137,18 +125,52 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  result_log_name = f"サイズ調整(2コおきver)_originDQN_mod0*{learn_rate_leverage}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_nn{str(layer)}_seed{seed_value}"
-  os.makedirs(f"./results/{result_log_name}", exist_ok=True)
-  os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
-  os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
+  result_log_name = f"aopp検証_originDQN_mod0*{learn_rate_leverage}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_seed{seed_value}"
+  # os.makedirs(f"./results/{result_log_name}", exist_ok=True)
+  # os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
+  # os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
 
   all_plot_time = time.time()
-  run_time_log = f"all plot {(all_plot_time - start_time)/60:.2f} min\n{result_log_name}"
-  display_percentage_of_hand(act_len_0_timing1, act_len_1_timing1, act_len_0_timing2, act_len_1_timing2, result_log_name, run_time_log)
-  plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, run_time_log, num_trials)
+  # run_time_log = f"all plot {(all_plot_time - start_time)/60:.2f} min\n{result_log_name}"
+  # display_percentage_of_hand(act_len_0_timing1, act_len_1_timing1, act_len_0_timing2, act_len_1_timing2, result_log_name, run_time_log)
+  # plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, run_time_log)
 
   all_finish_time = time.time()
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
 
+def hand():
+  csv_file_name = "results_pool/results_0.0005_leveerageあり/aopp検証_originDQN_mod0*1.2_2024-1219-22:08:42_learningRate0.0005_gamma0.99_gradientSteps900_trainFreq10episode_trial1000_batchSize256_seed40/hand_csv/aopp検証_originDQN_mod0*1.2_2024-1219-22:08:42_learningRate0.0005_gamma0.99_gradientSteps900_trainFreq10episode_trial1000_batchSize256_seed40_timing2.csv"
+
+  plot_hand_hist_csv(csv_file_name)
+
+def plot_rew_from_npy(path,save_name):
+  rews1_timing1 = np.load(f"{path}/rews1_timing1.npy")
+  rews1_timing2 = np.load(f"{path}/rews1_timing2.npy")
+  rews2_timing1 = np.load(f"{path}/rews2_timing1.npy")
+  rews2_timing2 = np.load(f"{path}/rews2_timing2.npy")
+
+  step=2
+  result_name=f"{save_name}_step{step}"
+  num_trials = len(rews1_timing1)
+  print(num_trials)
+
+  plot_rews(rews1_timing1, rews1_timing2, rews2_timing1, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False)
+
+
 if __name__ == "__main__":
-  main()
+  # main()
+  # hand()
+
+  path = "./results/サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0103-07:30:03_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  plot_rew_from_npy(path,"サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0103-07:30:03_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_2")
+
+  # rews1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
+  # rews2 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
+  # step=3
+  # min_len = min(len(rews1), len(rews2)) // step
+  # x = np.arange(1, min_len + 1)
+  # rews1 = rews1[:min_len * step:step]
+  # rews2 = rews2[:min_len * step:step]
+
+  # print("rews1",rews1)
+  # print("rews2",rews2)

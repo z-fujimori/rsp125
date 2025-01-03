@@ -24,13 +24,23 @@
 | a2024-1218-11:17:34_learningRate0.0005_gamma0.99_<br>gradientSteps40_trainFreq10_trial600_batchSize256_seed100 | 138.54 | <img src="./show_results/a2024-1218-11:17:34_learningRate0.0005_gamma0.99_gradientSteps40_trainFreq10_trial600_batchSize256_seed100_timing1.png"> |
 | a2024-1218-11:36:37_learningRate0.0005_gamma0.99_<br>gradientSteps90_trainFreq20_trial600_batchSize256_seed100 | 151.32 | <img src="./show_results/a2024-1218-11:36:37_learningRate0.0005_gamma0.99_gradientSteps90_trainFreq20_trial600_batchSize256_seed100_timing1.png"> |
 | a2024-1218-12:14:21_learningRate0.0005_gamma0.99_<br>gradientSteps60_trainFreq10_trial600_batchSize256_seed100 | 195.49 | <img src="./show_results/a2024-1218-12:14:21_learningRate0.0005_gamma0.99_gradientSteps60_trainFreq10_trial600_batchSize256_seed100_timing1.png"> |
-| a2024-1218-12:40:29_learningRate0.0005_gamma0.99_<br>gradientSteps10_trainFreq10_trial1000_batchSize256_seed100 | 68.49 | <img src="./show_results/a2024-1218-12:40:29_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10_trial1000_batchSize256_seed100_timing1.png"> | <img src="./show_results/a2024-1218-12:40:29_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10_trial1000_batchSize256_seed100_timing2.png">
+| a2024-1218-12:40:29_learningRate0.0005_gamma0.99_<br>gradientSteps10_trainFreq10_trial1000_batchSize256_seed100 | 68.49 | <img src="./show_results/a2024-1218-12:40:29_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10_trial1000_batchSize256_seed100_timing1.png"> | <img src="./show_results/a2024-1218-12:40:29_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10_trial1000_batchSize256_seed100_timing2.png"> |
 | a2024-1218-13:09:22_learningRate0.0005_gamma0.99_<br>gradientSteps80_trainFreq10_trial600_batchSize256_seed100 | 250.65 | <img src="./show_results/a2024-1218-13:09:22_learningRate0.0005_gamma0.99_gradientSteps80_trainFreq10_trial600_batchSize256_seed100_timing1.png"> |
-|  |  | <img src="./show_results/"> |
-|  |  | <img src="./show_results/"> |
+| a2024-1218-13:35:42_learningRate0.0005_gamma0.99_gradientSteps90_trainFreq30_trial600_batchSize256_seed100 | 102.92 | <img src="./show_results/a2024-1218-13:35:42_learningRate0.0005_gamma0.99_gradientSteps90_trainFreq30_trial600_batchSize256_seed100_timing1.png"> |
+| a2024-1218-14:00:03_learningRate0.0005_gamma0.99_gradientSteps80_trainFreq20_trial600_batchSize256_seed100 | 128.00 | <img src="./show_results/a2024-1218-14:00:03_learningRate0.0005_gamma0.99_gradientSteps80_trainFreq20_trial600_batchSize256_seed100_timing1.png"> |
 |  |  | <img src="./show_results/"> |
 |  |  | <img src="./show_results/"> |
 |  |  |  |
+
+## opp検証
+25から41の間
+
+|title|run time(m)|img_timing1|img_timing2|
+|-|-|-|-|
+| 42-52 |  | <img src="./show_results/aopp検証_42-52_2024-1218-14:45:20_learningRate0.0005_gamma0.99_gradientSteps90_trainFreq20_trial300_batchSize256_seed100_timing1.png"> |  |
+|  |  | <img src="./show_results"> |  |
+|  |  | <img src="./show_results"> |  |
+|  |  | <img src="./show_results"> |  |
 
 <!-- ## 学習率,割引率,学習回数
 | (学習率, 割引率, 回数) | pl_0 | pl_1 | 平均 | メモ | 画像 |
