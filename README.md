@@ -4,11 +4,19 @@
 - /rsp125.py
     環境, 固定戦略の相手を定義
 
-# ルール
-- （グー、チョキ、パー）＝（０、１、２）　未定義 ＝　3
-- 
+# 抄録に使用しているデータ
+- しっぺ返し固定戦略
+    - ./results/aしっぺ返し_2025-0102-17:29:15_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial5000_batchSize256_seed42/rew_plot
+    - 固定戦略_0102-172915_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial5000_batchSize256_seed42_step2
+- 1.0倍 学習率
+    - ./results/サイズ調整(2コおきver)_originDQN_mod0*1.0_2025-0103-12:01:12_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot
+    - 1.0_0103-120112_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_step2_timing1
+- 1.4倍 学習率
+    - ./results/サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0103-07:30:03_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot 
+    - 1.4_0103-073003_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_step2_timing1
 
-## run time
+
+<!-- ## run time
 |title|run time(m)|img_timing1|img_timing2|
 |-|-|-|-|
 | a2024-1217-22:35:10_learningRate0.0005_gamma0.99_<br>gradientSteps100_train_freq100_trial600_batchSize256_seed100 | 36.19 | <img src="./show_results/a2024-1217-22:35:10_learningRate0.0005_gamma0.99_gradientSteps100_train_freq100_trial600_batchSize256_seed100_timing1.png"> |
@@ -40,7 +48,7 @@
 | 42-52 |  | <img src="./show_results/aopp検証_42-52_2024-1218-14:45:20_learningRate0.0005_gamma0.99_gradientSteps90_trainFreq20_trial300_batchSize256_seed100_timing1.png"> |  |
 |  |  | <img src="./show_results"> |  |
 |  |  | <img src="./show_results"> |  |
-|  |  | <img src="./show_results"> |  |
+|  |  | <img src="./show_results"> |  | -->
 
 <!-- ## 学習率,割引率,学習回数
 | (学習率, 割引率, 回数) | pl_0 | pl_1 | 平均 | メモ | 画像 |
