@@ -154,15 +154,15 @@ def plot_rew_from_npy(path,save_name):
   num_trials = len(rews1_timing1)
   print(num_trials)
 
-  plot_rews(rews1_timing1, rews1_timing2, rews2_timing1, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False)
+  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False)
 
 
 if __name__ == "__main__":
   # main()
   # hand()
 
-  path = "./results/サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0103-07:30:03_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
-  plot_rew_from_npy(path,"サイズ調整(2コおきver)_originDQN_mod0*1.4_2025-0103-07:30:03_learningRate5e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_2")
+  path = "./results/サイズ調整(2コおきver)_originDQN_mod0*1.0_2025-0107-13:30:36_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  plot_rew_from_npy(path,"レバレッジなし_2025-0102-17:29:15_learningRate7e-05")
 
   # rews1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
   # rews2 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
