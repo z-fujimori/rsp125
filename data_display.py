@@ -12,7 +12,7 @@ import os
 # フォントを日本語対応のものに設定
 rcParams['font.family'] = 'Osaka'
 
-def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name='output',run_time_log='--',num_trials=10000,step=5,is_save_mode=True):
+def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name='output',run_time_log='--',num_trials=10000,step=5,is_save_mode=True, moving_average=True):
   if (is_save_mode):
     np.save(f"./results/{result_name}/rew_plot/rews1_timing1",rews1_timing1)
     np.save(f"./results/{result_name}/rew_plot/rews2_timing1",rews2_timing1)
@@ -33,10 +33,10 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     # プロット
     plt.figure(figsize=(80, 40))  # グラフのサイズを指定
     plt.plot(x, sum_rews, label="平均点", color="black", alpha=0.9)
-    # plt.plot(x, rews1, label="PlayerA", color="blue", alpha=0.5)
-    # plt.plot(x, rews2, label="PlayerB", color="orange", alpha=0.5)
-    plt.plot(x, rews1, label="機械学習エージェント", color="blue", alpha=0.5)
-    plt.plot(x, rews2, label="しっぺ返しエージェント", color="orange", alpha=0.5)
+    plt.plot(x, rews1, label="PlayerA", color="blue", alpha=0.5)
+    plt.plot(x, rews2, label="PlayerB", color="orange", alpha=0.5)
+    # plt.plot(x, rews1, label="機械学習エージェント", color="blue", alpha=0.5)
+    # plt.plot(x, rews2, label="しっぺ返しエージェント", color="orange", alpha=0.5)
 
     # 横軸ラベルを変更するためのFormatter
     def multiply_by_five(x, pos):
@@ -45,8 +45,8 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     # グラフの設定
     # 軸設定
     plt.gca().xaxis.set_major_formatter(FuncFormatter(multiply_by_five))
-    # plt.xlim(0, num_trials//step)
-    plt.ylim(0,440)
+    plt.xlim(0, num_trials//step)
+    # plt.ylim(0,440)
     plt.xticks(rotation=90) # 横軸のメモリの表記を縦書きにする
     plt.title(f'{log_name}_{run_time_log}min', fontsize=32)
     plt.xlabel("Episode")
@@ -85,9 +85,25 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
       # plt.show()
     # plt.close()
 
-  # save_plot_rews(rews1_timing1, rews2_timing1, result_name, f"{result_name}_timing1")
-  save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2")
+  if moving_average :
+    new_rews1_timing1 = []
+    new_rews2_timing1 = []
+    new_rews1_timing2 = []
+    new_rews2_timing2 = []
 
+    for i in range(len(rews1_timing1)-10):
+      new_rews1_timing1.append(sum(rews1_timing1[i:i+10])/10)
+      new_rews2_timing1.append(sum(rews2_timing1[i:i+10])/10)
+      new_rews1_timing2.append(sum(rews1_timing2[i:i+10])/10)
+      new_rews2_timing2.append(sum(rews2_timing2[i:i+10])/10)
+
+    rews1_timing1 = new_rews1_timing1
+    rews2_timing1 = new_rews2_timing1
+    rews1_timing2 = new_rews1_timing2
+    rews2_timing2 = new_rews2_timing2
+
+  save_plot_rews(rews1_timing1, rews2_timing1, result_name, f"{result_name}_timing1")
+  save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2")
 
 
 def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, hist_b_timing2, result_name='output',run_time_log='--'):
