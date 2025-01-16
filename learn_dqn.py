@@ -40,7 +40,7 @@ def main(goal=100):
 
   num_trials = 10000
   learn_rate = 0.00007   #  学習率 DQNのデフォルトは1e-3
-  learn_rate_leverage = 1.1   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
+  learn_rate_leverage = 1.8   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
   gamma = 0.99    #    割引率   デフォルトは0.99
   gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
   batch_size = 256 #  default=256
@@ -98,7 +98,7 @@ def main(goal=100):
   env1.opp = model0
 
   for i in range(num_trials):
-    if i % (num_trials/1000) == 0 and i > 1:
+    if i % (num_trials/100) == 0 and i > 1:
       elapsed_time = time.time() - start_time
       remaining_time = elapsed_time*(num_trials-i)/i
       estimated_end_time = time.time() + remaining_time
