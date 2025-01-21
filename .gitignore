@@ -3,5 +3,7 @@ __pycache__/
 results/
 results_pool/
 make_results/
+make_hands/
+model_zips/
 .DS_Store
 .python-version

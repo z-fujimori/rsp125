@@ -7,7 +7,7 @@ import time
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data_display import plot_rews,display_percentage_of_hand
+from data_display import plot_rews,display_percentage_of_hand,retaliating_plot_rews
 
 def append_act_rew_env0(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   for a in act_hist:
@@ -50,6 +50,7 @@ def main(goal=100):
   freq_word = "episode"
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
   seed_value = 42 # シードを揃える
+  save_model_zip = True
 
   print(f"しっぺ返しと対戦[β] num_trials{num_trials} learn_rate{learn_rate} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value}")
 
@@ -100,8 +101,12 @@ def main(goal=100):
   os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
 
+  if save_model_zip:
+    os.makedirs(f"./model_zips/{result_log_name}", exist_ok=True)
+    model0.save(f"./model_zips/{result_log_name}/model0.zip")
+
   display_percentage_of_hand(act_len_0_timing1, act_len_1_timing1, act_len_0_timing2, act_len_1_timing2, result_log_name)
-  plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, learn_rate, num_trials)
+  retaliating_plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, learn_rate, num_trials)
 
   all_finish_time = time.time()
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")

@@ -7,7 +7,7 @@ import time
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data_display import plot_rews,display_percentage_of_hand,plot_hand_hist_csv
+from data_display import plot_rews,display_percentage_of_hand,plot_hand_hist_csv,retaliating_plot_rews
 
 def append_act_rew_env0(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   for a in act_hist:
@@ -41,7 +41,7 @@ def main(goal=100):
 
 
   num_trials = 5
-  learn_rate = 0.00008   #  学習率 DQNのデフォルトは1e-3
+  learn_rate = 0.0008   #  学習率 DQNのデフォルトは1e-3
   learn_rate_leverage = 1.4   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
   gamma = 0.99    #    割引率   デフォルトは0.99
   gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
@@ -139,9 +139,10 @@ def main(goal=100):
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
 
 def hand():
-  csv_file_name = "results_pool/results_0.0005_leveerageあり/aopp検証_originDQN_mod0*1.2_2024-1219-22:08:42_learningRate0.0005_gamma0.99_gradientSteps900_trainFreq10episode_trial1000_batchSize256_seed40/hand_csv/aopp検証_originDQN_mod0*1.2_2024-1219-22:08:42_learningRate0.0005_gamma0.99_gradientSteps900_trainFreq10episode_trial1000_batchSize256_seed40_timing2.csv"
+  csv_file_name = "results/originDQN_mod0*1.0-gradient*1-bach400_2025-0120-08:08:27_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/hand_csv/originDQN_mod0*1.0-gradient*1-bach400_2025-0120-08:08:27_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
+  save_name = "mod0*1.0-gradient*1-bach400_2025-0120-08:08:27_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
 
-  plot_hand_hist_csv(csv_file_name)
+  plot_hand_hist_csv(csv_file_name, save_name)
 
 def plot_rew_from_npy(path,save_name):
   rews1_timing1 = np.load(f"{path}/rews1_timing1.npy")
@@ -156,21 +157,28 @@ def plot_rew_from_npy(path,save_name):
 
   plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False)
 
+def ret_rew_plot():
+  path = "results/aしっぺ返し_2025-0118-18:25:20_learningRate0.0005_gamma0.9_gradientSteps1000_trainFreq10episode_trial5000_batchSize256_seed42/rew_plot"
+  save_name = "aしっぺ返し_2025-0118-18:25:20_learningRate0.0005_gamma0.9_gradientSteps1000_trainFreq10episode_trial5000_batchSize256_seed42"
+
+  rews1_timing1 = np.load(f"{path}/rews1_timing1.npy")
+  rews2_timing1 = np.load(f"{path}/rews2_timing1.npy")
+  rews1_timing2 = np.load(f"{path}/rews1_timing2.npy")
+  rews2_timing2 = np.load(f"{path}/rews2_timing2.npy")
+  step=2
+  result_name=f"{save_name}_step{step}"
+  num_trials = len(rews1_timing2)
+  print(num_trials)
+
+  retaliating_plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False)
+
+
 
 if __name__ == "__main__":
   # main()
-  # hand()
+  hand()
+  # ret_rew_plot()
 
-  path = "./results/サイズ調整(2コおきver)_originDQN_mod0*1.0_2025-0107-13:30:36_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
-  plot_rew_from_npy(path,"レバレッジなし_2025-0102-17:29:15_learningRate7e-05")
+  # path = "./results/サイズ調整(2コおきver)_originDQN_mod0*1.0_2025-0107-13:30:36_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  # plot_rew_from_npy(path,"レバレッジなし_2025-0102-17:29:15_learningRate7e-05")
 
-  # rews1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
-  # rews2 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
-  # step=3
-  # min_len = min(len(rews1), len(rews2)) // step
-  # x = np.arange(1, min_len + 1)
-  # rews1 = rews1[:min_len * step:step]
-  # rews2 = rews2[:min_len * step:step]
-
-  # print("rews1",rews1)
-  # print("rews2",rews2)
