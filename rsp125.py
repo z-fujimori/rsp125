@@ -11,12 +11,12 @@ class Actions(IntEnum):
 class RSP125(gym.Env):
   metadata = {'render_modes': ['human']}
 
-  def __init__(self, opp=None, n_history=10, goal=100, render_mode=None):
+  def __init__(self, opp=None, n_history=10, goal=100, render_mode=None, isOppNash=False):
     self.action_space = gym.spaces.Discrete(3) # グー、チョキ、パー
     self.reward_range = 0.0, 5.0 # 報酬の最小値、最大値
     self.observation_space = gym.spaces.MultiDiscrete((4,) * (2 * n_history))
 
-    self.opp = opp or TitForTatAgent(self.np_random)
+    self.opp = opp or NashAgent(self.np_random) if isOppNash else TitForTatAgent(self.np_random)
     self.n_history = n_history
     self.goal = goal
 

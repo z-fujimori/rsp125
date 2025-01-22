@@ -7,7 +7,7 @@ import time
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data_display import plot_rews,display_percentage_of_hand
+from data_display import plot_rews,display_percentage_of_hand,retaliating_plot_rews
 
 def append_act_rew_env0(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   for a in act_hist:
@@ -50,6 +50,7 @@ def main(goal=100):
   freq_word = "episode"
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
   seed_value = 42 # シードを揃える
+  save_model_zip = True
 
   print(f"しっぺ返しと対戦[β] num_trials{num_trials} learn_rate{learn_rate} gamma{gamma} gradient_steps{gradient_steps} batch_size{batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value}")
 
@@ -61,6 +62,12 @@ def main(goal=100):
   act_len_1_timing2 = []
   rew_len_0_timing2 = []
   rew_len_1_timing2 = []
+  # 追加実験用(他の戦略にもロバストか？)
+  act_model0_mod0vsnash = []
+  act_nash_mod0vsnash = []
+  rew_model0_mod0vsnash = []
+  rew_nash_mod0vsnash = []
+
   env0 = RSP125(goal=100, n_history=5)
   model0 = DQN(
     "MlpPolicy",
@@ -73,6 +80,8 @@ def main(goal=100):
     learning_rate=learn_rate, #  学習率
     # device="cuda", # GPUを使用 "cpu"と書くとCPU使用
   )
+  # 追加実験用(他の戦略にもロバストか？)
+  envNash = RSP125(goal=100, n_history=5, isOppNash=True)
 
   for i in range(num_trials):
     # 学習phase (model0学習 model1固定)
@@ -85,7 +94,15 @@ def main(goal=100):
       action = model0.predict(obs, deterministic=True)[0]       # ！！！！！！！！！ここは互い違いでなければいけない？
       obs, reward, terminated, truncated, info = env0.step(action)
     act_len_0_timing2, rew_len_0_timing2, act_len_1_timing2, rew_len_1_timing2 = append_act_rew_env0(act_len_0_timing2, rew_len_0_timing2, act_len_1_timing2, rew_len_1_timing2, env0._action_history[5:], env0._reward_history)
-  
+    
+    # 追加実験用(他の戦略にもロバストか？)
+    obs, info = envNash.reset()
+    for k in range(goal):
+      action = model0.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envNash.step(action)
+    act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash = append_act_rew_env0(act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash, envNash._action_history[5:], envNash._reward_history)
+
+
     print(f"i: {i} / {num_trials}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
 
   end_time = time.time()
@@ -95,13 +112,22 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  result_log_name = f"aしっぺ返し_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_seed{seed_value}"
+  result_log_name = f"追加検証しっぺ返し_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_seed{seed_value}"
   os.makedirs(f"./results/{result_log_name}", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
+  os.makedirs(f"./results/{result_log_name}/robust", exist_ok=True)
+
+  if save_model_zip:
+    os.makedirs(f"./model_zips/{result_log_name}", exist_ok=True)
+    model0.save(f"./model_zips/{result_log_name}/model0.zip")
 
   display_percentage_of_hand(act_len_0_timing1, act_len_1_timing1, act_len_0_timing2, act_len_1_timing2, result_log_name)
-  plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, learn_rate, num_trials)
+  retaliating_plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, learn_rate, num_trials)
+
+    # # 追加実験用(他の戦略にもロバストか？)
+  display_percentage_of_hand([], [], act_model0_mod0vsnash, act_nash_mod0vsnash, result_log_name, isRobust=True)
+  retaliating_plot_rews([], [], rew_model0_mod0vsnash, rew_nash_mod0vsnash, result_log_name, learn_rate, num_trials, isRobust=True)
 
   all_finish_time = time.time()
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
