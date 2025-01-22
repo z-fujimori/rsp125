@@ -39,14 +39,14 @@ def append_act_rew_env1(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
 def main(goal=100):
   start_time = time.time()
 
-  num_trials = 11
+  num_trials = 1
   learn_rate = 0.00007   #  学習率 DQNのデフォルトは1e-3
   learn_rate_leverage = 1.0   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
   gamma = 0.99    #    割引率   デフォルトは0.99
   gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
-  gradient_steps_skale = 1.0
+  gradient_steps_skale = 1.19
   batch_size = 256 #  default=256
-  model0_batch_size = 256 
+  model0_batch_size = 256
   # gradient_steps × batch_size が1回のトレーニングで使用されるサンプル数
   freq_step = 10
   freq_word = "episode"
@@ -111,7 +111,7 @@ def main(goal=100):
   env0.opp = model1
   env1.opp = model0
   # 追加実験用(他の戦略にもロバストか？)
-  env2 = RSP125(goal=100, n_history=5, isOppNash=True)
+  envNash = RSP125(goal=100, n_history=5, isOppNash=True)
 
   for i in range(num_trials):
     if i % (num_trials/100) == 0 and i > 1:
@@ -133,11 +133,11 @@ def main(goal=100):
       obs, reward, terminated, truncated, info = env1.step(action)
     act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1 = append_act_rew_env1(act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1, env1._action_history[5:], env1._reward_history)
     # 追加実験用(他の戦略にもロバストか？)
-    obs, info = env2.reset()
+    obs, info = envNash.reset()
     for k in range(goal):
       action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = env2.step(action)
-    act_model1_mod1vsnash, rew_model1_mod1vsnash, act_nash_mod1vsnash, rew_nash_mod1vsnash = append_act_rew_env1(act_model1_mod1vsnash, rew_model1_mod1vsnash, act_nash_mod1vsnash, rew_nash_mod1vsnash, env2._action_history[5:], env2._reward_history)
+      obs, reward, terminated, truncated, info = envNash.step(action)
+    act_model1_mod1vsnash, rew_model1_mod1vsnash, act_nash_mod1vsnash, rew_nash_mod1vsnash = append_act_rew_env1(act_model1_mod1vsnash, rew_model1_mod1vsnash, act_nash_mod1vsnash, rew_nash_mod1vsnash, envNash._action_history[5:], envNash._reward_history)
 
     # 学習phase (model0固定 model1学習)
     # # model1.replay_buffer.reset()
@@ -153,11 +153,11 @@ def main(goal=100):
       obs, reward, terminated, truncated, info = env0.step(action)
     act_len_0_timing2, rew_len_0_timing2, act_len_1_timing2, rew_len_1_timing2 = append_act_rew_env0(act_len_0_timing2, rew_len_0_timing2, act_len_1_timing2, rew_len_1_timing2, env0._action_history[5:], env0._reward_history)
     # 追加実験用(他の戦略にもロバストか？)
-    obs, info = env2.reset()
+    obs, info = envNash.reset()
     for k in range(goal):
       action = model0.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = env2.step(action)
-    act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash = append_act_rew_env0(act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash, env2._action_history[5:], env2._reward_history)
+      obs, reward, terminated, truncated, info = envNash.step(action)
+    act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash = append_act_rew_env0(act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash, envNash._action_history[5:], envNash._reward_history)
 
     print(f"i: {i} / {num_trials}\ntiming1 reward0: {rew_len_0_timing1[i]}, reward1: {rew_len_1_timing1[i]}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
 
@@ -185,8 +185,8 @@ def main(goal=100):
   plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, run_time_log, num_trials)
 
   # # 追加実験用(他の戦略にもロバストか？)
-  display_percentage_of_hand(act_model0_mod0vsnash, act_nash_mod0vsnash, act_model1_mod1vsnash, act_nash_mod1vsnash, result_log_name, run_time_log)
-  plot_rews(rew_model0_mod0vsnash, rew_nash_mod0vsnash, rew_model1_mod1vsnash, rew_nash_mod1vsnash, result_log_name, run_time_log, num_trials)
+  display_percentage_of_hand(act_model0_mod0vsnash, act_nash_mod0vsnash, act_model1_mod1vsnash, act_nash_mod1vsnash, result_log_name, run_time_log, isRobust=True)
+  plot_rews(rew_model0_mod0vsnash, rew_nash_mod0vsnash, rew_model1_mod1vsnash, rew_nash_mod1vsnash, result_log_name, run_time_log, num_trials, isRobust=True)
 
 
   all_finish_time = time.time()

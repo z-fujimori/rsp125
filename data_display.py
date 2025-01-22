@@ -46,8 +46,6 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
     else:
       plt.plot(x, rews1, label="PlayerA", color="blue", alpha=0.5)
       plt.plot(x, rews2, label="PlayerB", color="orange", alpha=0.5)
-    # plt.plot(x, rews1, label="機械学習エージェント", color="blue", alpha=0.5)
-    # plt.plot(x, rews2, label="しっぺ返しエージェント", color="orange", alpha=0.5)
 
     # 横軸ラベルを変更するためのFormatter
     def multiply_by_five(x, pos):
@@ -95,9 +93,6 @@ def plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_nam
       file_path = os.path.join(f"./make_results/{log_dir}/rew_plot", f"{log_name}.png")
 
     plt.savefig(file_path)
-    # 表示
-    # plt.show()
-    # plt.close()
 
   if moving_average :
     new_rews1_timing1 = []
@@ -205,8 +200,6 @@ def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, h
       hand_plot_hist[2][0] = new_hand20
       hand_plot_hist[2][1] = new_hand21
       hand_plot_hist[2][2] = new_hand22
-      print("移動平均")
-    print("移動平均")
 
     hand_plt = create_plt_data(hand_plot_hist[0][0],hand_plot_hist[0][1],hand_plot_hist[0][2],hand_plot_hist[1][0],hand_plot_hist[1][1],hand_plot_hist[1][2],hand_plot_hist[2][0],hand_plot_hist[2][1],hand_plot_hist[2][2])
     if isRobust:
@@ -339,14 +332,18 @@ def create_plt_data(rew_g_g, rew_g_c, rew_g_p, rew_c_g, rew_c_c, rew_c_p, rew_p_
 
 
 
-
-
-def retaliating_plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name='output',run_time_log='--',num_trials=10000,step=5,is_save_mode=True, moving_average=True):
+def retaliating_plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing2,result_name='output',run_time_log='--',num_trials=10000,step=5,is_save_mode=True, moving_average=True, isRobust=False):
   if (is_save_mode):
-    np.save(f"./results/{result_name}/rew_plot/rews1_timing1",rews1_timing1)
-    np.save(f"./results/{result_name}/rew_plot/rews2_timing1",rews2_timing1)
-    np.save(f"./results/{result_name}/rew_plot/rews1_timing2",rews1_timing2)
-    np.save(f"./results/{result_name}/rew_plot/rews2_timing2",rews2_timing2)
+    if isRobust:
+      np.save(f"./results/{result_name}/robust/rews0_mod0",rews1_timing1)
+      np.save(f"./results/{result_name}/robust/rewsNash_mod0",rews2_timing1)
+      np.save(f"./results/{result_name}/robust/rews1_mod1",rews1_timing2)
+      np.save(f"./results/{result_name}/robust/rewsNash_mod1",rews2_timing2)
+    else:
+      np.save(f"./results/{result_name}/rew_plot/rews1_timing1",rews1_timing1)
+      np.save(f"./results/{result_name}/rew_plot/rews2_timing1",rews2_timing1)
+      np.save(f"./results/{result_name}/rew_plot/rews1_timing2",rews1_timing2)
+      np.save(f"./results/{result_name}/rew_plot/rews2_timing2",rews2_timing2)
   
   
   def save_plot_rews(rews1, rews2, log_dir, log_name):
@@ -362,8 +359,12 @@ def retaliating_plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing
     # プロット
     plt.figure(figsize=(80, 40))  # グラフのサイズを指定
     plt.plot(x, sum_rews, label="平均点", color="black", alpha=0.9)
-    plt.plot(x, rews1, label="機械学習エージェント", color="blue", alpha=0.5)
-    plt.plot(x, rews2, label="しっぺ返しエージェント", color="orange", alpha=0.5)
+    if isRobust:
+      plt.plot(x, rews1, label="エージェント", color="blue", alpha=0.5)
+      plt.plot(x, rews2, label="Nash", color="orange", alpha=0.5)
+    else:
+      plt.plot(x, rews1, label="機械学習エージェント", color="blue", alpha=0.5)
+      plt.plot(x, rews2, label="しっぺ返しエージェント", color="orange", alpha=0.5)
 
     # 横軸ラベルを変更するためのFormatter
     def multiply_by_five(x, pos):
@@ -401,16 +402,16 @@ def retaliating_plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing
     leg.get_lines()[2].set_linewidth(20)
     # 保存
     if (is_save_mode):
-      file_path = os.path.join(f"./results/{log_dir}/rew_plot", f"{log_name}.png") 
+      if isRobust:
+        file_path = os.path.join(f"./results/{log_dir}/robust", f"{log_name}.png") 
+      else:
+        file_path = os.path.join(f"./results/{log_dir}/rew_plot", f"{log_name}.png") 
     else:
       os.makedirs(f"./make_results/{log_dir}", exist_ok=True)
       os.makedirs(f"./make_results/{log_dir}/rew_plot", exist_ok=True)
       file_path = os.path.join(f"./make_results/{log_dir}/rew_plot", f"{log_name}.png")
 
     plt.savefig(file_path)
-    # 表示
-    # plt.show()
-    # plt.close()
 
   if moving_average :
     new_rews1_timing1 = []
@@ -428,17 +429,10 @@ def retaliating_plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing
     rews2_timing1 = new_rews2_timing1
     rews1_timing2 = new_rews1_timing2
     rews2_timing2 = new_rews2_timing2
-
-  save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2")
-
-
-
-
-
-
-
-
-
-
+  
+  if isRobust:
+    save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_エージェントA")
+  else:
+    save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2")
 
 

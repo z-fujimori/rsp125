@@ -139,8 +139,8 @@ def main(goal=100):
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
 
 def hand():
-  csv_file_name = "results/originDQN_mod0*1.0-gradient*1-bach400_2025-0120-08:08:27_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/hand_csv/originDQN_mod0*1.0-gradient*1-bach400_2025-0120-08:08:27_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
-  save_name = "mod0*1.0-gradient*1-bach400_2025-0120-08:08:27_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
+  csv_file_name = "results/originDQN_mod0*1.0-gradient*1.2-bach256_2025-0121-01:47:35_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/hand_csv/originDQN_mod0*1.0-gradient*1.2-bach256_2025-0121-01:47:35_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
+  save_name = "originDQN_mod0*1.0-gradient*1.2-bach256_2025-0121-01:47:35_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
 
   plot_hand_hist_csv(csv_file_name, save_name)
 

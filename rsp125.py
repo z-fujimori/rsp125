@@ -76,7 +76,7 @@ class UniformAgent:
 
 class NashAgent(UniformAgent):
   def predict(self, obs, deterministic=False):
-    return self.rng.choice((0, 1, 2), p=(0 / 17, 17 / 17, 0 / 17)), None
+    return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
   
 class TitForTatAgent(NashAgent):
   def predict(self, obs, deterministic=False):
