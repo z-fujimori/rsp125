@@ -150,12 +150,49 @@ def plot_rew_from_npy(path,save_name):
   rews2_timing1 = np.load(f"{path}/rews2_timing1.npy")
   rews2_timing2 = np.load(f"{path}/rews2_timing2.npy")
 
-  step=2
-  result_name=f"{save_name}_step{step}"
+  step=1
+  move_ave=100
+  result_name=f"{save_name}_step{step}_ave{move_ave}"
   num_trials = len(rews1_timing1)
   print(num_trials)
 
-  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False)
+  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False, move_ave_num=move_ave)
+
+# (修正版)から始まっていないフォルダはtiming２のデータが誤っている可能性あり AとBが逆
+def error_correction_plot_rew_from_npy(path,save_name):
+  rews1_timing1 = np.load(f"{path}/rews1_timing1.npy")
+  rews1_timing2 = np.load(f"{path}/rews2_timing2.npy")
+  rews2_timing1 = np.load(f"{path}/rews2_timing1.npy")
+  rews2_timing2 = np.load(f"{path}/rews1_timing2.npy")
+
+  step=1
+  move_ave=100
+  result_name=f"{save_name}_step{step}_ave{move_ave}"
+  num_trials = len(rews1_timing1)
+  print(num_trials)
+
+  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False, move_ave_num=move_ave)
+
+def robust_plot_rew_from_npy(path,save_name,robustType):
+  rews1_timing1 = np.load(f"{path}/rews0_mod0.npy")
+  rews1_timing2 = np.load(f"{path}/rews1_mod1.npy")
+  rews2_timing1 = np.load(f"{path}/rews{robustType}_mod0.npy")
+  rews2_timing2 = np.load(f"{path}/rews{robustType}_mod1.npy")
+
+  step=1
+  move_ave=100
+  result_name=f"{save_name}_step{step}_ave{move_ave}"
+  num_trials = len(rews1_timing1)
+  print(num_trials)
+
+  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step, is_save_mode=False, move_ave_num=move_ave, oppType="Uniform")
+
+def robust_rew():
+  robustType = "Nash"
+  path = "results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach256_2025-0126-07:17:05_learningRate7e-05_gamma0.99_gradientSteps1200_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/robust/uniform"
+  save_name = "Uni_gradient1200両方_0126-071705"
+  robust_plot_rew_from_npy(path=path, save_name=save_name, robustType=robustType)
+
 
 def ret_rew_plot():
   path = "results/aしっぺ返し_2025-0118-18:25:20_learningRate0.0005_gamma0.9_gradientSteps1000_trainFreq10episode_trial5000_batchSize256_seed42/rew_plot"
@@ -170,15 +207,15 @@ def ret_rew_plot():
   num_trials = len(rews1_timing2)
   print(num_trials)
 
-  retaliating_plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False)
-
+  retaliating_plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False, )
 
 
 if __name__ == "__main__":
   # main()
-  hand()
+  # hand()
   # ret_rew_plot()
+  robust_rew()
 
-  # path = "./results/サイズ調整(2コおきver)_originDQN_mod0*1.0_2025-0107-13:30:36_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
-  # plot_rew_from_npy(path,"レバレッジなし_2025-0102-17:29:15_learningRate7e-05")
+  # path = "./results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach256_2025-0126-07:17:05_learningRate7e-05_gamma0.99_gradientSteps1200_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  # error_correction_plot_rew_from_npy(path,"(修正版)0125-071705_gradient1200")
 

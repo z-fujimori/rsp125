@@ -25,13 +25,13 @@ def append_act_rew_env0(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
 
 def append_act_rew_env1(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   for a in act_hist:
-    act_0.append([a[0]])   # display_percentage_of_hand()では[x]の形で扱っているため、わざわざ[]で囲って格納してます、、、
-    act_1.append([a[1]])
+    act_0.append([a[1]])   # display_percentage_of_hand()では[x]の形で扱っているため、わざわざ[]で囲って格納してます、、、
+    act_1.append([a[0]])
   sum_rew_0 = 0
   sum_rew_1 = 0
   for r in rew_hist:
-    sum_rew_0 += r[0]
-    sum_rew_1 += r[1]
+    sum_rew_0 += r[1]
+    sum_rew_1 += r[0]
   rew_0.append(sum_rew_0)
   rew_1.append(sum_rew_1)
   return act_0, rew_0, act_1, rew_1
@@ -39,12 +39,12 @@ def append_act_rew_env1(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
 def main(goal=100):
   start_time = time.time()
 
-  num_trials = 1
+  num_trials = 10000
   learn_rate = 0.00007   #  学習率 DQNのデフォルトは1e-3
   learn_rate_leverage = 1.0   #  !!!!!!!!!!!!!!!!!!model0がのんびりさんだ、、、、なぜだ
   gamma = 0.99    #    割引率   デフォルトは0.99
   gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
-  gradient_steps_skale = 1.19
+  gradient_steps_skale = 1.0
   batch_size = 256 #  default=256
   model0_batch_size = 256
   # gradient_steps × batch_size が1回のトレーニングで使用されるサンプル数
@@ -53,7 +53,7 @@ def main(goal=100):
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
   layer = [64,64]
   policy_kwargs = dict(net_arch=layer) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
-  seed_value = 42 # シードを揃える
+  seed_value = 15 # シードを揃える
   save_model_zip = True
 
   print(f"num_trials{num_trials} learn_rate{learn_rate} learn_rate_leverage{learn_rate_leverage} gamma{gamma} gradient_steps{gradient_steps} gradient_steps_skale{gradient_steps_skale} batch_size{batch_size} model0_batch_size{model0_batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value} nn_layer{layer}")
@@ -67,14 +67,22 @@ def main(goal=100):
   rew_len_0_timing2 = []
   rew_len_1_timing2 = []
   # 追加実験用(他の戦略にもロバストか？)
-  act_model0_mod0vsnash = []
-  act_nash_mod0vsnash = []
-  rew_model0_mod0vsnash = []
-  rew_nash_mod0vsnash = []
-  act_model1_mod1vsnash = []
-  act_nash_mod1vsnash = []
-  rew_model1_mod1vsnash = []
-  rew_nash_mod1vsnash = []
+  act_model0_mod0vsNash = []
+  act_Nash_mod0vsNash = []
+  rew_model0_mod0vsNash = []
+  rew_Nash_mod0vsNash = []
+  act_model1_mod1vsNash = []
+  act_Nash_mod1vsNash = []
+  rew_model1_mod1vsNash = []
+  rew_Nash_mod1vsNash = []
+  act_model0_mod0vsUniform = []
+  act_Uniform_mod0vsUniform = []
+  rew_model0_mod0vsUniform = []
+  rew_Uniform_mod0vsUniform = []
+  act_model1_mod1vsUniform = []
+  act_Uniform_mod1vsUniform = []
+  rew_model1_mod1vsUniform = []
+  rew_Uniform_mod1vsUniform = []
 
   env0 = RSP125(goal=100, n_history=5)
   env1 = RSP125(goal=100, n_history=5)
@@ -111,7 +119,8 @@ def main(goal=100):
   env0.opp = model1
   env1.opp = model0
   # 追加実験用(他の戦略にもロバストか？)
-  envNash = RSP125(goal=100, n_history=5, isOppNash=True)
+  envNash = RSP125(goal=100, n_history=5, oppType="Nash")
+  envUniform = RSP125(goal=100, n_history=5, oppType="Uniform")
 
   for i in range(num_trials):
     if i % (num_trials/100) == 0 and i > 1:
@@ -137,7 +146,12 @@ def main(goal=100):
     for k in range(goal):
       action = model1.predict(obs, deterministic=True)[0]
       obs, reward, terminated, truncated, info = envNash.step(action)
-    act_model1_mod1vsnash, rew_model1_mod1vsnash, act_nash_mod1vsnash, rew_nash_mod1vsnash = append_act_rew_env1(act_model1_mod1vsnash, rew_model1_mod1vsnash, act_nash_mod1vsnash, rew_nash_mod1vsnash, envNash._action_history[5:], envNash._reward_history)
+    act_model1_mod1vsNash, rew_model1_mod1vsNash, act_Nash_mod1vsNash, rew_Nash_mod1vsNash = append_act_rew_env0(act_model1_mod1vsNash, rew_model1_mod1vsNash, act_Nash_mod1vsNash, rew_Nash_mod1vsNash, envNash._action_history[5:], envNash._reward_history)
+    obs, info = envUniform.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envUniform.step(action)
+    act_model1_mod1vsUniform, rew_model1_mod1vsUniform, act_Uniform_mod1vsUniform, rew_Uniform_mod1vsUniform = append_act_rew_env0(act_model1_mod1vsUniform, rew_model1_mod1vsUniform, act_Uniform_mod1vsUniform, rew_Uniform_mod1vsUniform, envUniform._action_history[5:], envUniform._reward_history)
 
     # 学習phase (model0固定 model1学習)
     # # model1.replay_buffer.reset()
@@ -157,7 +171,12 @@ def main(goal=100):
     for k in range(goal):
       action = model0.predict(obs, deterministic=True)[0]
       obs, reward, terminated, truncated, info = envNash.step(action)
-    act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash = append_act_rew_env0(act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash, envNash._action_history[5:], envNash._reward_history)
+    act_model0_mod0vsNash, rew_model0_mod0vsNash, act_Nash_mod0vsNash, rew_Nash_mod0vsNash = append_act_rew_env0(act_model0_mod0vsNash, rew_model0_mod0vsNash, act_Nash_mod0vsNash, rew_Nash_mod0vsNash, envNash._action_history[5:], envNash._reward_history)
+    obs, info = envUniform.reset()
+    for k in range(goal):
+      action = model0.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envUniform.step(action)
+    act_model0_mod0vsUniform, rew_model0_mod0vsUniform, act_Uniform_mod0vsUniform, rew_Uniform_mod0vsUniform = append_act_rew_env0(act_model0_mod0vsUniform, rew_model0_mod0vsUniform, act_Uniform_mod0vsUniform, rew_Uniform_mod0vsUniform, envUniform._action_history[5:], envUniform._reward_history)
 
     print(f"i: {i} / {num_trials}\ntiming1 reward0: {rew_len_0_timing1[i]}, reward1: {rew_len_1_timing1[i]}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
 
@@ -168,11 +187,12 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  result_log_name = f"追加検証_originDQN_mod0*{learn_rate_leverage}-gradient*{gradient_steps_skale}-bach{model0_batch_size}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_nn{str(layer)}_seed{seed_value}"
+  result_log_name = f"(修正版)追加検証(nash,uni)_originDQN_mod0*{learn_rate_leverage}-gradient*{gradient_steps_skale}-bach{model0_batch_size}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_nn{str(layer)}_seed{seed_value}"
   os.makedirs(f"./results/{result_log_name}", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
-  os.makedirs(f"./results/{result_log_name}/robust", exist_ok=True)
+  os.makedirs(f"./results/{result_log_name}/robust/nash", exist_ok=True)
+  os.makedirs(f"./results/{result_log_name}/robust/uniform", exist_ok=True)
 
   if save_model_zip:
     os.makedirs(f"./model_zips/{result_log_name}", exist_ok=True)
@@ -185,8 +205,10 @@ def main(goal=100):
   plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, run_time_log, num_trials)
 
   # # 追加実験用(他の戦略にもロバストか？)
-  display_percentage_of_hand(act_model0_mod0vsnash, act_nash_mod0vsnash, act_model1_mod1vsnash, act_nash_mod1vsnash, result_log_name, run_time_log, isRobust=True)
-  plot_rews(rew_model0_mod0vsnash, rew_nash_mod0vsnash, rew_model1_mod1vsnash, rew_nash_mod1vsnash, result_log_name, run_time_log, num_trials, isRobust=True)
+  display_percentage_of_hand(act_model0_mod0vsNash, act_Nash_mod0vsNash, act_model1_mod1vsNash, act_Nash_mod1vsNash, result_log_name, run_time_log, oppType="Nash")
+  plot_rews(rew_model0_mod0vsNash, rew_Nash_mod0vsNash, rew_model1_mod1vsNash, rew_Nash_mod1vsNash, result_log_name, run_time_log, num_trials, oppType="Nash")
+  display_percentage_of_hand(act_model0_mod0vsUniform, act_Uniform_mod0vsUniform, act_model1_mod1vsUniform, act_Uniform_mod1vsUniform, result_log_name, run_time_log, oppType="Uniform")
+  plot_rews(rew_model0_mod0vsUniform, rew_Uniform_mod0vsUniform, rew_model1_mod1vsUniform, rew_Uniform_mod1vsUniform, result_log_name, run_time_log, num_trials, oppType="Uniform")
 
 
   all_finish_time = time.time()
