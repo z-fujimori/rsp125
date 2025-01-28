@@ -11,12 +11,18 @@ class Actions(IntEnum):
 class RSP125(gym.Env):
   metadata = {'render_modes': ['human']}
 
-  def __init__(self, opp=None, n_history=10, goal=100, render_mode=None, isOppNash=False):
+  def __init__(self, opp=None, n_history=10, goal=100, render_mode=None, isOppNash=False, oppType=None):
     self.action_space = gym.spaces.Discrete(3) # グー、チョキ、パー
     self.reward_range = 0.0, 5.0 # 報酬の最小値、最大値
     self.observation_space = gym.spaces.MultiDiscrete((4,) * (2 * n_history))
 
-    self.opp = opp or NashAgent(self.np_random) if isOppNash else TitForTatAgent(self.np_random)
+    if oppType == "Nash":
+      setOpp = NashAgent(self.np_random)
+    elif oppType == "Uniform":
+      setOpp = UniformAgent(self.np_random)
+    else:
+      setOpp = TitForTatAgent(self.np_random)
+    self.opp = opp or setOpp
     self.n_history = n_history
     self.goal = goal
 
@@ -90,8 +96,8 @@ class TitForTatAgent(NashAgent):
       # print("次はグーを出す")
       return Actions["R"], None
     else:
-      # return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
-      return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3)), None
+      return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
+      # return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3)), None
 
 class InputAgent:
   def predict(self, obs, deterministic=False): # deterministic Falseで探索モード

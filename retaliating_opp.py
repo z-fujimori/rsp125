@@ -40,10 +40,10 @@ def main(goal=100):
   start_time = time.time()
 
 
-  num_trials = 5000
+  num_trials = 1000
   learn_rate = 0.0005   #  学習率 DQNのデフォルトは1e-3
   gamma = 0.99    #    割引率   デフォルトは0.99
-  gradient_steps = 1000 # learn()ごとに何回学習するか デフォルトは１ 
+  gradient_steps = 10 # learn()ごとに何回学習するか デフォルトは１ 
   batch_size = 256 #  default=256
   # gradient_steps × batch_size が1回のトレーニングで使用されるサンプル数
   freq_step = 10
@@ -67,6 +67,10 @@ def main(goal=100):
   act_nash_mod0vsnash = []
   rew_model0_mod0vsnash = []
   rew_nash_mod0vsnash = []
+  act_model0_mod0vsuniform = []
+  act_uniform_mod0vsuniform = []
+  rew_model0_mod0vsuniform = []
+  rew_uniform_mod0vsuniform = []
 
   env0 = RSP125(goal=100, n_history=5)
   model0 = DQN(
@@ -81,7 +85,8 @@ def main(goal=100):
     # device="cuda", # GPUを使用 "cpu"と書くとCPU使用
   )
   # 追加実験用(他の戦略にもロバストか？)
-  envNash = RSP125(goal=100, n_history=5, isOppNash=True)
+  envNash = RSP125(goal=100, n_history=5, oppType="Nash")
+  envUniform = RSP125(goal=100, n_history=5, oppType="Uniform")
 
   for i in range(num_trials):
     # 学習phase (model0学習 model1固定)
@@ -101,6 +106,11 @@ def main(goal=100):
       action = model0.predict(obs, deterministic=True)[0]
       obs, reward, terminated, truncated, info = envNash.step(action)
     act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash = append_act_rew_env0(act_model0_mod0vsnash, rew_model0_mod0vsnash, act_nash_mod0vsnash, rew_nash_mod0vsnash, envNash._action_history[5:], envNash._reward_history)
+    obs, info = envUniform.reset()
+    for k in range(goal):
+      action = model0.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envUniform.step(action)
+    act_model0_mod0vsuniform, rew_model0_mod0vsuniform, act_uniform_mod0vsuniform, rew_uniform_mod0vsuniform = append_act_rew_env0(act_model0_mod0vsuniform, rew_model0_mod0vsuniform, act_uniform_mod0vsuniform, rew_uniform_mod0vsuniform, envUniform._action_history[5:], envUniform._reward_history)
 
 
     print(f"i: {i} / {num_trials}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
@@ -116,7 +126,8 @@ def main(goal=100):
   os.makedirs(f"./results/{result_log_name}", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
-  os.makedirs(f"./results/{result_log_name}/robust", exist_ok=True)
+  os.makedirs(f"./results/{result_log_name}/robust/nash", exist_ok=True)
+  os.makedirs(f"./results/{result_log_name}/robust/uniform", exist_ok=True)
 
   if save_model_zip:
     os.makedirs(f"./model_zips/{result_log_name}", exist_ok=True)
@@ -126,8 +137,10 @@ def main(goal=100):
   retaliating_plot_rews(rew_len_0_timing1, rew_len_1_timing1, rew_len_0_timing2, rew_len_1_timing2, result_log_name, learn_rate, num_trials)
 
     # # 追加実験用(他の戦略にもロバストか？)
-  display_percentage_of_hand([], [], act_model0_mod0vsnash, act_nash_mod0vsnash, result_log_name, isRobust=True)
-  retaliating_plot_rews([], [], rew_model0_mod0vsnash, rew_nash_mod0vsnash, result_log_name, learn_rate, num_trials, isRobust=True)
+  display_percentage_of_hand([], [], act_model0_mod0vsnash, act_nash_mod0vsnash, result_log_name, oppType="Nash")
+  retaliating_plot_rews([], [], rew_model0_mod0vsnash, rew_nash_mod0vsnash, result_log_name, learn_rate, num_trials, oppType="Nash")
+  display_percentage_of_hand([], [], act_model0_mod0vsuniform, act_uniform_mod0vsuniform, result_log_name, oppType="Uniform")
+  retaliating_plot_rews([], [], rew_model0_mod0vsuniform, rew_uniform_mod0vsuniform, result_log_name, learn_rate, num_trials, oppType="Uniform")
 
   all_finish_time = time.time()
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
