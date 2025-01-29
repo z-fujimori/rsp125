@@ -139,8 +139,8 @@ def main(goal=100):
   print(f"all finish {(all_finish_time - start_time)/60:.2f} min\n{result_log_name}")
 
 def hand():
-  csv_file_name = "results/originDQN_mod0*1.0-gradient*1.2-bach256_2025-0121-01:47:35_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/hand_csv/originDQN_mod0*1.0-gradient*1.2-bach256_2025-0121-01:47:35_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
-  save_name = "originDQN_mod0*1.0-gradient*1.2-bach256_2025-0121-01:47:35_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
+  csv_file_name = "results/追加検証(nash,uni)_originDQN_mod0*1.8-gradient*1.0-bach256_2025-0125-03:56:38_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/hand_csv/hand_追加検証(nash,uni)_originDQN_mod0*1.8-gradient*1.0-bach256_2025-0125-03:56:38_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_timing2.csv"
+  save_name = "0125-03:56:38_学習率1.8レバ"
 
   plot_hand_hist_csv(csv_file_name, save_name)
 
@@ -151,7 +151,7 @@ def plot_rew_from_npy(path,save_name):
   rews2_timing2 = np.load(f"{path}/rews2_timing2.npy")
 
   step=1
-  move_ave=100
+  move_ave=20
   result_name=f"{save_name}_step{step}_ave{move_ave}"
   num_trials = len(rews1_timing1)
   print(num_trials)
@@ -195,14 +195,18 @@ def robust_rew():
 
 
 def ret_rew_plot():
-  path = "results/aしっぺ返し_2025-0118-18:25:20_learningRate0.0005_gamma0.9_gradientSteps1000_trainFreq10episode_trial5000_batchSize256_seed42/rew_plot"
-  save_name = "aしっぺ返し_2025-0118-18:25:20_learningRate0.0005_gamma0.9_gradientSteps1000_trainFreq10episode_trial5000_batchSize256_seed42"
+  path = "results/追加検証しっぺ返し_2025-0126-14:44:14_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10episode_trial1000_batchSize256_seed42/rew_plot"
+  save_name = "しっぺ返し1000_0126-144414"
 
   rews1_timing1 = np.load(f"{path}/rews1_timing1.npy")
   rews2_timing1 = np.load(f"{path}/rews2_timing1.npy")
   rews1_timing2 = np.load(f"{path}/rews1_timing2.npy")
   rews2_timing2 = np.load(f"{path}/rews2_timing2.npy")
-  step=2
+  # rews1_timing1 = np.load(f"{path}/rews0_mod0.npy")
+  # rews2_timing1 = np.load(f"{path}/rewsNash_mod0.npy")
+  # rews1_timing2 = np.load(f"{path}/rews1_mod1.npy")
+  # rews2_timing2 = np.load(f"{path}/rewsNash_mod1.npy")
+  step=1
   result_name=f"{save_name}_step{step}"
   num_trials = len(rews1_timing2)
   print(num_trials)
@@ -212,10 +216,10 @@ def ret_rew_plot():
 
 if __name__ == "__main__":
   # main()
-  # hand()
+  hand()
   # ret_rew_plot()
-  robust_rew()
+  # robust_rew()
 
-  # path = "./results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach256_2025-0126-07:17:05_learningRate7e-05_gamma0.99_gradientSteps1200_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  # path = "results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach400_2025-0125-04:33:01_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  # plot_rew_from_npy(path,"0125-04:33:01_batch400")
   # error_correction_plot_rew_from_npy(path,"(修正版)0125-071705_gradient1200")
-

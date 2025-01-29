@@ -16,12 +16,16 @@ class RSP125(gym.Env):
     self.reward_range = 0.0, 5.0 # 報酬の最小値、最大値
     self.observation_space = gym.spaces.MultiDiscrete((4,) * (2 * n_history))
 
-    if oppType == "Nash":
-      setOpp = NashAgent(self.np_random)
-    elif oppType == "Uniform":
-      setOpp = UniformAgent(self.np_random)
-    else:
-      setOpp = TitForTatAgent(self.np_random)
+    match oppType:
+      case "Nash": setOpp = NashAgent(self.np_random)
+      case "Uniform": setOpp = UniformAgent(self.np_random)
+      case "TendR": setOpp = TendRAgent(self.np_random)
+      case "TendC": setOpp = TendCAgent(self.np_random)
+      case "TendP": setOpp = TendPAgent(self.np_random)
+      case "R": setOpp = RAgent(self.np_random)
+      case "C": setOpp = CAgent(self.np_random)
+      case "P": setOpp = PAgent(self.np_random)
+      case _: setOpp = TitForTatAgent(self.np_random)
     self.opp = opp or setOpp
     self.n_history = n_history
     self.goal = goal
@@ -98,6 +102,25 @@ class TitForTatAgent(NashAgent):
     else:
       return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
       # return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3)), None
+
+class TendRAgent(UniformAgent):
+  def predict(self, obs, deterministic=False):
+    return self.rng.choice((0, 1, 2), p=(4 / 17, 9 / 17, 4 / 17)), None
+class TendCAgent(UniformAgent):
+  def predict(self, obs, deterministic=False):
+    return self.rng.choice((0, 1, 2), p=(1 / 17, 12 / 17, 4 / 17)), None
+class TendPAgent(UniformAgent):
+  def predict(self, obs, deterministic=False):
+    return self.rng.choice((0, 1, 2), p=(1 / 17, 9 / 17, 7 / 17)), None
+class RAgent(UniformAgent):
+  def predict(self, obs, deterministic=False):
+    return self.rng.choice((0, 1, 2), p=(1, 0, 0)), None
+class CAgent(UniformAgent):
+  def predict(self, obs, deterministic=False):
+    return self.rng.choice((0, 1, 2), p=(0, 1, 0)), None
+class PAgent(UniformAgent):
+  def predict(self, obs, deterministic=False):
+    return self.rng.choice((0, 1, 2), p=(0, 0, 1)), None
 
 class InputAgent:
   def predict(self, obs, deterministic=False): # deterministic Falseで探索モード
