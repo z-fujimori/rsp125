@@ -53,8 +53,9 @@ def main(goal=100):
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
   layer = [64,64]
   policy_kwargs = dict(net_arch=layer) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
-  seed_value = 42 # シードを揃える
+  seed_value = 82 # シードを揃える
   save_model_zip = True
+  n_history = 5
 
   print(f"num_trials{num_trials} learn_rate{learn_rate} learn_rate_leverage{learn_rate_leverage} gamma{gamma} gradient_steps{gradient_steps} gradient_steps_skale{gradient_steps_skale} batch_size{batch_size} model0_batch_size{model0_batch_size} freq_step{freq_step}{freq_word} seed_value{seed_value} nn_layer{layer}")
 
@@ -132,8 +133,8 @@ def main(goal=100):
   rew_model1_mod1vsP = []
   rew_P_mod1vsP = []
 
-  env0 = RSP125(goal=100, n_history=5)
-  env1 = RSP125(goal=100, n_history=5)
+  env0 = RSP125(goal=100, n_history=n_history)
+  env1 = RSP125(goal=100, n_history=n_history)
   model0 = DQN(
     "MlpPolicy",
     env0,
@@ -167,14 +168,14 @@ def main(goal=100):
   env0.opp = model1
   env1.opp = model0
   # 追加実験用(他の戦略にもロバストか？)
-  envNash = RSP125(goal=100, n_history=5, oppType="Nash")
-  envUniform = RSP125(goal=100, n_history=5, oppType="Uniform")
-  envTendR = RSP125(goal=100, n_history=5, oppType="TendR")
-  envTendC = RSP125(goal=100, n_history=5, oppType="TendC")
-  envTendP = RSP125(goal=100, n_history=5, oppType="TendP")
-  envR = RSP125(goal=100, n_history=5, oppType="R")
-  envC = RSP125(goal=100, n_history=5, oppType="C")
-  envP = RSP125(goal=100, n_history=5, oppType="P")
+  envNash = RSP125(goal=100, n_history=n_history, oppType="Nash")
+  envUniform = RSP125(goal=100, n_history=n_history, oppType="Uniform")
+  envTendR = RSP125(goal=100, n_history=n_history, oppType="TendR")
+  envTendC = RSP125(goal=100, n_history=n_history, oppType="TendC")
+  envTendP = RSP125(goal=100, n_history=n_history, oppType="TendP")
+  envR = RSP125(goal=100, n_history=n_history, oppType="R")
+  envC = RSP125(goal=100, n_history=n_history, oppType="C")
+  envP = RSP125(goal=100, n_history=n_history, oppType="P")
 
   for i in range(num_trials):
     if i % (num_trials/100) == 0 and i > 1:
@@ -293,7 +294,7 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  result_log_name = f"(修正版)追加検証(nash,uni,tend)_originDQN_mod0*{learn_rate_leverage}-gradient*{gradient_steps_skale}-bach{model0_batch_size}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_nn{str(layer)}_seed{seed_value}"
+  result_log_name = f"seed82(rsp,nash,uni,tend)_mod0*{learn_rate_leverage}-gradient*{gradient_steps_skale}-bach{model0_batch_size}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_nn{str(layer)}_seed{seed_value}_history{n_history}"
   os.makedirs(f"./results/{result_log_name}", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)

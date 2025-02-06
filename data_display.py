@@ -8,9 +8,12 @@ from matplotlib.ticker import MultipleLocator
 from matplotlib.ticker import FuncFormatter
 import csv
 import os
+from PIL import Image
+import io
 
 # フォントを日本語対応のものに設定
 rcParams['font.family'] = 'Osaka'
+plt.rcParams['font.family'] = 'Osaka'
 
 move_ave = 100 # 移動平均
 
@@ -63,7 +66,6 @@ def plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2, result
       np.save(f"./results/{result_name}/rew_plot/rews1_timing2",rews1_timing2)
       np.save(f"./results/{result_name}/rew_plot/rews2_timing2",rews2_timing2)
   
-  
   def save_plot_rews(rews1, rews2, log_dir, log_name):
     # xとrewsの長さを調整しながら間引き
     min_len = min(len(rews1), len(rews2)) // step
@@ -74,7 +76,7 @@ def plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2, result
 
     mpl.rcParams.update({'font.size': 150})
     # メモリの文字サイズを小さくする
-    plt.tick_params(axis='both', labelsize=100) 
+    plt.tick_params(axis='both', labelsize=100)
 
     # プロット
     plt.figure(figsize=(65, 30))  # グラフのサイズを指定
@@ -110,7 +112,6 @@ def plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2, result
     # 横軸ラベルを変更するためのFormatter
     def multiply_by_five(x, pos):
       return f'{x * step:.0f}'  # 倍率step倍にし、小数点なしのフォーマット
-
 
     # グラフの設定
     # 軸設定
@@ -185,6 +186,98 @@ def plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2, result
   else:
     save_plot_rews(rews1_timing1, rews2_timing1, result_name, f"rew_{result_name}_エージェントA")
     save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"rew_{result_name}_エージェントB")
+
+
+def two_lines_rew_plot(rew1_data1, rew1_data2, rew1_name1, rew1_name2, rew2_data1, rew2_data2, rew2_name1, rew2_name2, result_name="fig", num_trials=10000, move_ave_num=100):
+  mpl.rcParams['font.family'] = 'Osaka'
+  # データが短すぎる場合の対策
+  if len(rew1_data1) <= move_ave_num or len(rew2_data1) <= move_ave_num:
+    print("データが短すぎます。move_ave_numを調整してください。")
+    return
+  
+  # 移動平均の計算
+  new_rew1_data1 = [sum(rew1_data1[i:i+move_ave_num])/move_ave_num for i in range(len(rew1_data1)-move_ave_num)]
+  new_rew1_data2 = [sum(rew1_data2[i:i+move_ave_num])/move_ave_num for i in range(len(rew1_data2)-move_ave_num)]
+  new_rew2_data1 = [sum(rew2_data1[i:i+move_ave_num])/move_ave_num for i in range(len(rew2_data1)-move_ave_num)]
+  new_rew2_data2 = [sum(rew2_data2[i:i+move_ave_num])/move_ave_num for i in range(len(rew2_data2)-move_ave_num)]
+  
+  rew1_data1, rew1_data2 = new_rew1_data1, new_rew1_data2
+  rew2_data1, rew2_data2 = new_rew2_data1, new_rew2_data2
+
+  # 長さの確認
+  if not (len(rew1_data1) == len(rew1_data2) == len(rew2_data1) == len(rew2_data2)):
+    print("データの長さが一致していません")
+    return
+
+  # グラフ作成
+  x = np.arange(1, len(rew1_data1) + 1)
+  mpl.rcParams.update({'font.size': 40})
+  # plt.tick_params(axis='both', labelsize=4)
+
+  fig, axes = plt.subplots(2, 1, figsize=(20, 15), sharex=True)
+
+  # 軸ラベルフォーマッター
+  def multiply_by_five(x, pos):
+    return f'{x * 1:.0f}'
+
+  # グラフ1
+  axes[0].plot(x, rew1_data1, label=f"{rew1_name1}", color="blue", alpha=0.7, linewidth=7)
+  axes[0].plot(x, rew1_data2, label=f"{rew1_name2}", color="orange", alpha=0.7, linewidth=7)
+  axes[0].set_ylabel('合計得点')
+  axes[0].axhline(y=250, color='r', linestyle='--', linewidth=5)
+  axes[0].legend(framealpha=0.7, fontsize=35)
+  axes[0].text(-0.1, 1.0, 'A', transform=axes[0].transAxes, fontsize=50, fontweight='bold')
+
+  # グラフ2
+  axes[1].plot(x, rew2_data1, label=f"{rew2_name1}", color="blue", alpha=0.7, linewidth=7)
+  axes[1].plot(x, rew2_data2, label=f"{rew2_name2}", color="orange", alpha=0.7, linewidth=7)
+  axes[1].set_xlabel('trial')
+  axes[1].set_ylabel('合計得点')
+  axes[1].axhline(y=250, color='r', linestyle='--', linewidth=5)
+  axes[1].legend(framealpha=0.7, fontsize=35)
+  axes[1].text(-0.1, 1.0, 'B', transform=axes[1].transAxes, fontsize=50, fontweight='bold')
+
+  # 共通設定
+  for ax in axes:
+    ax.xaxis.set_major_formatter(FuncFormatter(multiply_by_five))
+    ax.set_xlim(0, len(rew1_data1))
+    ax.set_ylim(1, 340)
+    ax.xaxis.set_major_locator(MultipleLocator(1000))
+    ax.yaxis.set_major_locator(MultipleLocator(50))
+    ax.xaxis.set_minor_locator(MultipleLocator(50))
+    ax.yaxis.set_minor_locator(MultipleLocator(25))
+    ax.minorticks_on()
+    ax.grid(which='minor', linestyle='-', linewidth=1, alpha=0.4)
+    ax.grid(which='major', linestyle='-', linewidth=3, alpha=0.7)
+
+  plt.xticks(rotation=90)
+
+  # 凡例の線の太さを変更
+  # for ax in axes:
+  #   leg = ax.legend()
+  #   for line in leg.get_lines():
+  #     line.set_linewidth(15)
+    # for font in leg.get_fonts():
+    #   font.set_fontsize(5)
+
+  # 余白を調整
+  plt.subplots_adjust(hspace=0.05, top=0.95, bottom=0.15)
+
+  # 1. グラフを作成し、メモリ上に画像を保存
+  buffer = io.BytesIO()
+  plt.savefig(buffer, format='png', dpi=50)
+  # 2. メモリ上の画像データをPDFに変換
+  buffer.seek(0)  # バッファの先頭に戻す
+  image = Image.open(buffer)
+  pdf_buffer = io.BytesIO()
+  image.save(pdf_buffer, format="PDF", resolution=300)
+  # 3. PDFデータをファイルに保存
+  with open(f"./figs/{result_name}.pdf", "wb") as f:
+    f.write(pdf_buffer.getvalue())
+  # メモリのバッファをクローズ
+  buffer.close()
+  pdf_buffer.close()
+
 
 
 def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, hist_b_timing2, result_name='output', run_time_log='--', moving_averae=True, oppType=None):

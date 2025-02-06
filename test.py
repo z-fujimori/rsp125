@@ -3,11 +3,12 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.logger import configure
 from rsp125 import RSP125
 import numpy as np
+import matplotlib.pyplot as plt
 import time
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data_display import plot_rews,display_percentage_of_hand,plot_hand_hist_csv,retaliating_plot_rews
+from data_display import plot_rews,display_percentage_of_hand,plot_hand_hist_csv,retaliating_plot_rews,two_lines_rew_plot
 
 def append_act_rew_env0(act_0, rew_0, act_1, rew_1, act_hist, rew_hist):
   for a in act_hist:
@@ -151,12 +152,12 @@ def plot_rew_from_npy(path,save_name):
   rews2_timing2 = np.load(f"{path}/rews2_timing2.npy")
 
   step=1
-  move_ave=20
+  move_ave=100
   result_name=f"{save_name}_step{step}_ave{move_ave}"
   num_trials = len(rews1_timing1)
   print(num_trials)
 
-  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False, move_ave_num=move_ave)
+  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2, result_name=result_name, num_trials=num_trials, step=step, is_save_mode=False, move_ave_num=move_ave)
 
 # (修正版)から始まっていないフォルダはtiming２のデータが誤っている可能性あり AとBが逆
 def error_correction_plot_rew_from_npy(path,save_name):
@@ -178,6 +179,10 @@ def robust_plot_rew_from_npy(path,save_name,robustType):
   rews1_timing2 = np.load(f"{path}/rews1_mod1.npy")
   rews2_timing1 = np.load(f"{path}/rews{robustType}_mod0.npy")
   rews2_timing2 = np.load(f"{path}/rews{robustType}_mod1.npy")
+  print(rews1_timing1)
+  print(rews1_timing2)
+  print(rews2_timing1)
+  print(rews2_timing2)
 
   step=1
   move_ave=100
@@ -185,18 +190,18 @@ def robust_plot_rew_from_npy(path,save_name,robustType):
   num_trials = len(rews1_timing1)
   print(num_trials)
 
-  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step, is_save_mode=False, move_ave_num=move_ave, oppType="Uniform")
+  plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step, is_save_mode=False, move_ave_num=move_ave, oppType="Nash")
 
 def robust_rew():
   robustType = "Nash"
-  path = "results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach256_2025-0126-07:17:05_learningRate7e-05_gamma0.99_gradientSteps1200_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/robust/uniform"
-  save_name = "Uni_gradient1200両方_0126-071705"
+  path = "results/追加検証しっぺ返し追加検証(rsp,nash,uni)_2025-0131-10:42:51_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10episode_trial1000_batchSize256_seed42/robust/nash"
+  save_name = "しっぺ_nash_0131-104251"
   robust_plot_rew_from_npy(path=path, save_name=save_name, robustType=robustType)
 
 
 def ret_rew_plot():
-  path = "results/追加検証しっぺ返し_2025-0126-14:44:14_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10episode_trial1000_batchSize256_seed42/rew_plot"
-  save_name = "しっぺ返し1000_0126-144414"
+  path = "results/対しっぺ検証(rsp,nash,uni)_2025-0205-15:20:03_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10episode_trial1000_batchSize100_seed42/rew_plot"
+  save_name = "しっぺ1000_0205-152003"
 
   rews1_timing1 = np.load(f"{path}/rews1_timing1.npy")
   rews2_timing1 = np.load(f"{path}/rews2_timing1.npy")
@@ -213,13 +218,71 @@ def ret_rew_plot():
 
   retaliating_plot_rews(rews1_timing1, rews2_timing1, rews1_timing2, rews2_timing2,result_name=result_name, num_trials=num_trials, step=step,is_save_mode=False, )
 
+def two_lines_rew():
+  path1 = "results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach256_2025-0126-04:56:34_learningRate0.000126_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  path2 = "results/追加検証(nash,uni)_originDQN_mod0*1.8-gradient*1.0-bach256_2025-0125-03:56:38_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+
+  rew1_data1 = np.load(f"{path1}/rews2_timing2.npy")
+  rew1_data2 = np.load(f"{path1}/rews1_timing2.npy")
+  rew1_name1 = "エージェントA"
+  rew1_name2 = "エージェントB"
+  rew2_data1 = np.load(f"{path2}/rews2_timing2.npy")
+  rew2_data2 = np.load(f"{path2}/rews1_timing2.npy")
+  rew2_name1 = "エージェントA"
+  rew2_name2 = "エージェントB"
+  result_name="fig3"
+
+  two_lines_rew_plot(rew1_data1, rew1_data2, rew1_name1, rew1_name2, rew2_data1, rew2_data2, rew2_name1, rew2_name2, result_name=result_name)
+
 
 if __name__ == "__main__":
   # main()
-  hand()
+  # hand()
   # ret_rew_plot()
   # robust_rew()
+  two_lines_rew()
 
-  # path = "results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach400_2025-0125-04:33:01_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
-  # plot_rew_from_npy(path,"0125-04:33:01_batch400")
+  # read_npy = np.load(f"results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach256_2025-0125-03:54:04_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/robust/nash/rewsNash_mod1.npy")
+  # print(read_npy)
+  # print(np.mean(read_npy))
+
+  # path = "results/追加検証(nash,uni)_originDQN_mod01.0-gradient1.0-bach256_2025-0125-201150_learningRate7e-05_gamma0.98_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/rew_plot"
+  # plot_rew_from_npy(path,"0125-20:11:50_gamma0.98")
   # error_correction_plot_rew_from_npy(path,"(修正版)0125-071705_gradient1200")
+
+  # plt.rcdefaults()
+  # # サンプルデータ
+  # x = np.linspace(0, 10, 100)
+  # y1 = np.sin(x)
+  # y2 = np.cos(x)
+
+  # # グラフを縦に2つ並べ、x軸を共有する（sharex=True）
+  # fig, axes = plt.subplots(2, 1, figsize=(6, 8), sharex=True)
+
+  # # グラフ1
+  # axes[0].plot(x, y1, label='sin(x)', color='blue')
+  # # axes[0].set_title('Sine Curve')
+  # axes[0].set_ylabel('Y-axis')
+  # axes[0].legend(loc='upper right')
+
+  # # グラフ1の左上にラベルAを追加
+  # axes[0].text(-0.1, 1.05, 'A', transform=axes[0].transAxes, fontsize=14, fontweight='bold')
+
+  # # グラフ2
+  # axes[1].plot(x, y2, label='cos(x)', color='orange')
+  # # axes[1].set_title('Cosine Curve')
+  # axes[1].set_xlabel('X-axis')
+  # axes[1].set_ylabel('Y-axis')
+  # axes[1].legend(loc='upper right')
+
+  # # グラフ2の左上にラベルBを追加
+  # axes[1].text(-0.1, 1.05, 'B', transform=axes[1].transAxes, fontsize=14, fontweight='bold')
+
+  # # グラフの間隔を自動調整
+  # plt.tight_layout()
+
+  # # PDF形式で保存
+  # plt.savefig('graph_output.pdf', format='pdf')
+
+  # # 表示
+  # plt.show()
