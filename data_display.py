@@ -226,7 +226,7 @@ def two_lines_rew_plot(rew1_data1, rew1_data2, rew1_name1, rew1_name2, rew2_data
   axes[0].set_ylabel('合計得点')
   axes[0].axhline(y=250, color='r', linestyle='--', linewidth=5)
   axes[0].legend(framealpha=0.7, fontsize=35)
-  axes[0].text(-0.1, 1.0, 'A', transform=axes[0].transAxes, fontsize=50, fontweight='bold')
+  axes[0].text(-0.1, 0.9, 'A', transform=axes[0].transAxes, fontsize=50, fontweight='bold')
 
   # グラフ2
   axes[1].plot(x, rew2_data1, label=f"{rew2_name1}", color="blue", alpha=0.7, linewidth=7)
@@ -235,7 +235,7 @@ def two_lines_rew_plot(rew1_data1, rew1_data2, rew1_name1, rew1_name2, rew2_data
   axes[1].set_ylabel('合計得点')
   axes[1].axhline(y=250, color='r', linestyle='--', linewidth=5)
   axes[1].legend(framealpha=0.7, fontsize=35)
-  axes[1].text(-0.1, 1.0, 'B', transform=axes[1].transAxes, fontsize=50, fontweight='bold')
+  axes[1].text(-0.1, 0.9, 'B', transform=axes[1].transAxes, fontsize=50, fontweight='bold')
 
   # 共通設定
   for ax in axes:
@@ -277,7 +277,6 @@ def two_lines_rew_plot(rew1_data1, rew1_data2, rew1_name1, rew1_name2, rew2_data
   # メモリのバッファをクローズ
   buffer.close()
   pdf_buffer.close()
-
 
 
 def display_percentage_of_hand(hist_a_timing1, hist_b_timing1, hist_a_timing2, hist_b_timing2, result_name='output', run_time_log='--', moving_averae=True, oppType=None):
@@ -678,3 +677,246 @@ def retaliating_plot_rews(rews1_timing1,rews2_timing1,rews1_timing2,rews2_timing
     save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"rew_P_{result_name}_エージェントA")
   else:
     save_plot_rews(rews1_timing2, rews2_timing2, result_name, f"{result_name}_timing2")
+
+def robust_evaluation(result_name, dqn_nash, opp_nash, dqn_r, opp_r, dqn_c, opp_c, dqn_p, opp_p):
+  # 末尾500回の平均を計算
+  def ave_of_last(array, last_num=500):
+    return np.mean(array[-last_num:])
+  ave_dqn_nash = ave_of_last(dqn_nash)
+  ave_opp_nash = ave_of_last(opp_nash)
+  ave_dqn_r = ave_of_last(dqn_r)
+  ave_opp_r = ave_of_last(opp_r)
+  ave_dqn_c = ave_of_last(dqn_c)
+  ave_opp_c = ave_of_last(opp_c)
+  ave_dqn_p = ave_of_last(dqn_p)
+  ave_opp_p = ave_of_last(opp_p)
+
+  data = {
+    'Nash': [ave_dqn_nash, ave_opp_nash],
+    'OnlyR': [ave_dqn_r, ave_opp_r],
+    'OnlyC': [ave_dqn_c, ave_opp_c],
+    'OnlyP': [ave_dqn_p, ave_opp_p]
+  }
+
+  labels = list(data.keys())
+  values = np.array(list(data.values()))
+  # 棒グラフの幅と位置を設定
+  x = np.arange(len(labels))  # X軸の位置
+  width = 0.35  # 棒の幅
+  # 棒グラフを描画
+  mpl.rcParams.update({'font.size': 25})
+  fig, ax = plt.subplots()
+  bar1 = ax.bar(x - width/2, values[:, 0], width, label='機械学習エージェント', color='blue')
+  bar2 = ax.bar(x + width/2, values[:, 1], width, label='固定戦略エージェント', color='orange')
+  
+  ax.set_ylim(0, 290)
+  ax.yaxis.set_major_locator(MultipleLocator(50))
+  ax.yaxis.set_minor_locator(MultipleLocator(10))
+  ax.grid(axis='y', which='minor', linestyle='-', linewidth=0.5, alpha=0.3)
+  ax.grid(axis='y', which='major', linestyle='-', linewidth=1, alpha=0.6)
+  # ax.set_xlabel('x軸ラベル')
+  ax.set_ylabel('合計得点')
+  # ax.set_title('タイトル')
+  ax.set_xticks(x)
+  ax.set_xticklabels(labels)
+  ax.legend(framealpha=0.7, fontsize=14)
+
+  # グラフを表示
+  plt.tight_layout()
+  # plt.show()
+
+  # 1. グラフを作成し、メモリ上に画像を保存
+  buffer = io.BytesIO()
+  plt.savefig(buffer, format='png', dpi=250)
+  # 2. メモリ上の画像データをPDFに変換
+  buffer.seek(0)  # バッファの先頭に戻す
+  image = Image.open(buffer)
+  pdf_buffer = io.BytesIO()
+  image.save(pdf_buffer, format="PDF", resolution=300)
+  # 3. PDFデータをファイルに保存
+  with open(f"./figs/{result_name}.pdf", "wb") as f:
+    f.write(pdf_buffer.getvalue())
+  # メモリのバッファをクローズ
+  buffer.close()
+  pdf_buffer.close()
+
+def two_col_robust_evaluation(result_name, dqn_nash_0, opp_nash_0, dqn_r_0, opp_r_0, dqn_c_0, opp_c_0, dqn_p_0, opp_p_0, dqn_nash_1, opp_nash_1, dqn_r_1, opp_r_1, dqn_c_1, opp_c_1, dqn_p_1, opp_p_1):
+  def ave_of_last(array, last_num=500):
+    return np.mean(array[-last_num:])
+  ave_dqn_nash_0 = ave_of_last(dqn_nash_0)
+  ave_opp_nash_0 = ave_of_last(opp_nash_0)
+  ave_dqn_r_0 = ave_of_last(dqn_r_0)
+  ave_opp_r_0 = ave_of_last(opp_r_0)
+  ave_dqn_c_0 = ave_of_last(dqn_c_0)
+  ave_opp_c_0 = ave_of_last(opp_c_0)
+  ave_dqn_p_0 = ave_of_last(dqn_p_0)
+  ave_opp_p_0 = ave_of_last(opp_p_0)
+  ave_dqn_nash_1 = ave_of_last(dqn_nash_1)
+  ave_opp_nash_1 = ave_of_last(opp_nash_1)
+  ave_dqn_r_1 = ave_of_last(dqn_r_1)
+  ave_opp_r_1 = ave_of_last(opp_r_1)
+  ave_dqn_c_1 = ave_of_last(dqn_c_1)
+  ave_opp_c_1 = ave_of_last(opp_c_1)
+  ave_dqn_p_1 = ave_of_last(dqn_p_1)
+  ave_opp_p_1 = ave_of_last(opp_p_1)
+
+  datas = [
+    {
+      'Nash': [ave_dqn_nash_0, ave_opp_nash_0],
+      'OnlyR': [ave_dqn_r_0, ave_opp_r_0],
+      'OnlyC': [ave_dqn_c_0, ave_opp_c_0],
+      'OnlyP': [ave_dqn_p_0, ave_opp_p_0]
+    },
+    {
+      'Nash': [ave_dqn_nash_1, ave_opp_nash_1],
+      'OnlyR': [ave_dqn_r_1, ave_opp_r_1],
+      'OnlyC': [ave_dqn_c_1, ave_opp_c_1],
+      'OnlyP': [ave_dqn_p_1, ave_opp_p_1]
+    }
+  ]
+  graph_labels = ['A', 'B']
+
+  mpl.rcParams.update({'font.size': 30})
+  fig, axes = plt.subplots(1, 2, figsize=(15,8), sharey=True)
+
+  for ax, data, label in zip(axes, datas, graph_labels):
+    labels = list(data.keys())
+    values = np.array(list(data.values()))
+    # 棒グラフの幅と位置を設定
+    x = np.arange(len(labels))  # X軸の位置
+    width = 0.4  # 棒の幅
+    # 棒グラフを描画
+    ax.bar(x - width/2, values[:, 0], width, label='機械学習エージェント', color='blue')
+    ax.bar(x + width/2, values[:, 1], width, label='固定戦略エージェント', color='orange')
+    
+    ax.set_ylim(0, 290)
+    ax.yaxis.set_major_locator(MultipleLocator(50))
+    ax.yaxis.set_minor_locator(MultipleLocator(10))
+    ax.grid(axis='y', which='minor', linestyle='-', linewidth=0.5, alpha=0.3)
+    ax.grid(axis='y', which='major', linestyle='-', linewidth=1, alpha=0.6)
+    # ax.set_xlabel('x軸ラベル')
+    # ax.set_ylabel('合計得点')
+    # ax.set_title('タイトル')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend(framealpha=0.7, fontsize=20)
+
+    ax.text(-0.1, 1.05, label, transform=ax.transAxes, fontsize=30, fontweight='bold', ha='left') # 左上の文字の設定
+
+  axes[0].set_ylabel('合計得点')
+  # グラフを表示
+  plt.tight_layout()
+  # plt.show()
+
+  # 1. グラフを作成し、メモリ上に画像を保存
+  buffer = io.BytesIO()
+  plt.savefig(buffer, format='png', dpi=250)
+  # 2. メモリ上の画像データをPDFに変換
+  buffer.seek(0)  # バッファの先頭に戻す
+  image = Image.open(buffer)
+  pdf_buffer = io.BytesIO()
+  image.save(pdf_buffer, format="PDF", resolution=300)
+  # 3. PDFデータをファイルに保存
+  with open(f"./figs/{result_name}.pdf", "wb") as f:
+    f.write(pdf_buffer.getvalue())
+  # メモリのバッファをクローズ
+  buffer.close()
+  pdf_buffer.close()
+
+def three_col_robust_evaluation(result_name, dqn_nash, opp_nash, dqn_r, opp_r, dqn_c, opp_c, dqn_p, opp_p, high_dqn_nash, high_opp_nash, high_dqn_r, high_opp_r, high_dqn_c, high_opp_c, high_dqn_p, high_opp_p, low_dqn_nash, low_opp_nash, low_dqn_r, low_opp_r, low_dqn_c, low_opp_c, low_dqn_p, low_opp_p):
+  # 末尾500回の平均を計算
+  def ave_of_last(array, last_num=500):
+    return np.mean(array[-last_num:])
+  ave_dqn_nash = ave_of_last(dqn_nash)
+  ave_opp_nash = ave_of_last(opp_nash)
+  ave_dqn_r = ave_of_last(dqn_r)
+  ave_opp_r = ave_of_last(opp_r)
+  ave_dqn_c = ave_of_last(dqn_c)
+  ave_opp_c = ave_of_last(opp_c)
+  ave_dqn_p = ave_of_last(dqn_p)
+  ave_opp_p = ave_of_last(opp_p)
+  ave_high_dqn_nash = ave_of_last(high_dqn_nash)
+  ave_high_opp_nash = ave_of_last(high_opp_nash)
+  ave_high_dqn_r = ave_of_last(high_dqn_r)
+  ave_high_opp_r = ave_of_last(high_opp_r)
+  ave_high_dqn_c = ave_of_last(high_dqn_c)
+  ave_high_opp_c = ave_of_last(high_opp_c)
+  ave_high_dqn_p = ave_of_last(high_dqn_p)
+  ave_high_opp_p = ave_of_last(high_opp_p)
+  ave_low_dqn_nash = ave_of_last(low_dqn_nash)
+  ave_low_opp_nash = ave_of_last(low_opp_nash)
+  ave_low_dqn_r = ave_of_last(low_dqn_r)
+  ave_low_opp_r = ave_of_last(low_opp_r)
+  ave_low_dqn_c = ave_of_last(low_dqn_c)
+  ave_low_opp_c = ave_of_last(low_opp_c)
+  ave_low_dqn_p = ave_of_last(low_dqn_p)
+  ave_low_opp_p = ave_of_last(low_opp_p)
+
+  datas = [
+    {
+      'Nash': [ave_dqn_nash, ave_opp_nash],
+      'OnlyR': [ave_dqn_r, ave_opp_r],
+      'OnlyC': [ave_dqn_c, ave_opp_c],
+      'OnlyP': [ave_dqn_p, ave_opp_p]
+    },
+    {
+      'Nash': [ave_high_dqn_nash, ave_high_opp_nash],
+      'OnlyR': [ave_high_dqn_r, ave_high_opp_r],
+      'OnlyC': [ave_high_dqn_c, ave_high_opp_c],
+      'OnlyP': [ave_high_dqn_p, ave_high_opp_p]
+    },
+    {
+      'Nash': [ave_low_dqn_nash, ave_low_opp_nash],
+      'OnlyR': [ave_low_dqn_r, ave_low_opp_r],
+      'OnlyC': [ave_low_dqn_c, ave_low_opp_c],
+      'OnlyP': [ave_low_dqn_p, ave_low_opp_p]
+    },
+  ]
+  graph_labels = ['A', 'B', 'C']
+
+  mpl.rcParams.update({'font.size': 25})
+  fig, axes = plt.subplots(1, 3, figsize=(20,8), sharey=True)
+
+  for ax, data, label in zip(axes, datas, graph_labels):
+    labels = list(data.keys())
+    values = np.array(list(data.values()))
+    # 棒グラフの幅と位置を設定
+    x = np.arange(len(labels))  # X軸の位置
+    width = 0.4  # 棒の幅
+    # 棒グラフを描画
+    ax.bar(x - width/2, values[:, 0], width, label='機械学習エージェント', color='blue')
+    ax.bar(x + width/2, values[:, 1], width, label='固定戦略エージェント', color='orange')
+    
+    ax.set_ylim(0, 290)
+    ax.yaxis.set_major_locator(MultipleLocator(50))
+    ax.yaxis.set_minor_locator(MultipleLocator(10))
+    ax.grid(axis='y', which='minor', linestyle='-', linewidth=0.5, alpha=0.3)
+    ax.grid(axis='y', which='major', linestyle='-', linewidth=1, alpha=0.6)
+    # ax.set_xlabel('x軸ラベル')
+    # ax.set_ylabel('合計得点')
+    # ax.set_title('タイトル')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend(framealpha=0.7, fontsize=15)
+
+    ax.text(-0.1, 1.05, label, transform=ax.transAxes, fontsize=25, fontweight='bold', ha='left') # 左上の文字の設定
+
+  axes[0].set_ylabel('合計得点')
+  # グラフを表示
+  plt.tight_layout()
+  # plt.show()
+
+  # 1. グラフを作成し、メモリ上に画像を保存
+  buffer = io.BytesIO()
+  plt.savefig(buffer, format='png', dpi=250)
+  # 2. メモリ上の画像データをPDFに変換
+  buffer.seek(0)  # バッファの先頭に戻す
+  image = Image.open(buffer)
+  pdf_buffer = io.BytesIO()
+  image.save(pdf_buffer, format="PDF", resolution=300)
+  # 3. PDFデータをファイルに保存
+  with open(f"./figs/{result_name}.pdf", "wb") as f:
+    f.write(pdf_buffer.getvalue())
+  # メモリのバッファをクローズ
+  buffer.close()
+  pdf_buffer.close()

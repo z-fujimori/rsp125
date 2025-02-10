@@ -53,7 +53,7 @@ def main(goal=100):
   train_freq = (freq_step, freq_word) # 何ステップごとにモデルのトレーニングを行うか default=(1, "step")
   layer = [64,64]
   policy_kwargs = dict(net_arch=layer) # ネットワークのアーキテクチャを変更 デフォルトは[64, 64]
-  seed_value = 82 # シードを揃える
+  seed_value = 42 # シードを揃える
   save_model_zip = True
   n_history = 5
 
@@ -186,57 +186,6 @@ def main(goal=100):
     # model0学習
     model0.learn(total_timesteps=1_000, log_interval=100)
 
-    # model1に行動させた評価
-    obs, info  = env1.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = env1.step(action)
-    act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1 = append_act_rew_env1(act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1, env1._action_history[5:], env1._reward_history)
-    # 追加実験用(他の戦略にもロバストか？)
-    obs, info = envNash.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = envNash.step(action)
-    act_model1_mod1vsNash, rew_model1_mod1vsNash, act_Nash_mod1vsNash, rew_Nash_mod1vsNash = append_act_rew_env0(act_model1_mod1vsNash, rew_model1_mod1vsNash, act_Nash_mod1vsNash, rew_Nash_mod1vsNash, envNash._action_history[5:], envNash._reward_history)
-    obs, info = envUniform.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = envUniform.step(action)
-    act_model1_mod1vsUniform, rew_model1_mod1vsUniform, act_Uniform_mod1vsUniform, rew_Uniform_mod1vsUniform = append_act_rew_env0(act_model1_mod1vsUniform, rew_model1_mod1vsUniform, act_Uniform_mod1vsUniform, rew_Uniform_mod1vsUniform, envUniform._action_history[5:], envUniform._reward_history)
-    obs, info = envTendR.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = envTendR.step(action)
-    act_model1_mod1vsTendR, rew_model1_mod1vsTendR, act_TendR_mod1vsTendR, rew_TendR_mod1vsTendR = append_act_rew_env0(act_model1_mod1vsTendR, rew_model1_mod1vsTendR, act_TendR_mod1vsTendR, rew_TendR_mod1vsTendR, envTendR._action_history[5:], envTendR._reward_history)
-    obs, info = envTendC.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = envTendC.step(action)
-    act_model1_mod1vsTendC, rew_model1_mod1vsTendC, act_TendC_mod1vsTendC, rew_TendC_mod1vsTendC = append_act_rew_env0(act_model1_mod1vsTendC, rew_model1_mod1vsTendC, act_TendC_mod1vsTendC, rew_TendC_mod1vsTendC, envTendC._action_history[5:], envTendC._reward_history)
-    obs, info = envTendP.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = envTendP.step(action)
-    act_model1_mod1vsTendP, rew_model1_mod1vsTendP, act_TendP_mod1vsTendP, rew_TendP_mod1vsTendP = append_act_rew_env0(act_model1_mod1vsTendP, rew_model1_mod1vsTendP, act_TendP_mod1vsTendP, rew_TendP_mod1vsTendP, envTendP._action_history[5:], envTendP._reward_history)
-    obs, info = envR.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = envR.step(action)
-    act_model1_mod1vsR, rew_model1_mod1vsR, act_R_mod1vsR, rew_R_mod1vsR = append_act_rew_env0(act_model1_mod1vsR, rew_model1_mod1vsR, act_R_mod1vsR, rew_R_mod1vsR, envR._action_history[5:], envR._reward_history)
-    obs, info = envC.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = envC.step(action)
-    act_model1_mod1vsC, rew_model1_mod1vsC, act_C_mod1vsC, rew_C_mod1vsC = append_act_rew_env0(act_model1_mod1vsC, rew_model1_mod1vsC, act_C_mod1vsC, rew_C_mod1vsC, envC._action_history[5:], envC._reward_history)
-    obs, info = envP.reset()
-    for k in range(goal):
-      action = model1.predict(obs, deterministic=True)[0]
-      obs, reward, terminated, truncated, info = envP.step(action)
-    act_model1_mod1vsP, rew_model1_mod1vsP, act_P_mod1vsP, rew_P_mod1vsP = append_act_rew_env0(act_model1_mod1vsP, rew_model1_mod1vsP, act_P_mod1vsP, rew_P_mod1vsP, envP._action_history[5:], envP._reward_history)
-
-    # model1学習
-    model1.learn(total_timesteps=1_000, log_interval=100)
-
     # model0に行動させた評価
     obs, info  = env0.reset()
     for k in range(goal):
@@ -285,6 +234,57 @@ def main(goal=100):
       obs, reward, terminated, truncated, info = envP.step(action)
     act_model0_mod0vsP, rew_model0_mod0vsP, act_P_mod0vsP, rew_P_mod0vsP = append_act_rew_env0(act_model0_mod0vsP, rew_model0_mod0vsP, act_P_mod0vsP, rew_P_mod0vsP, envP._action_history[5:], envP._reward_history)
 
+    # model1学習
+    model1.learn(total_timesteps=1_000, log_interval=100)
+
+    # model1に行動させた評価
+    obs, info  = env1.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = env1.step(action)
+    act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1 = append_act_rew_env1(act_len_0_timing1, rew_len_0_timing1, act_len_1_timing1, rew_len_1_timing1, env1._action_history[5:], env1._reward_history)
+    # 追加実験用(他の戦略にもロバストか？)
+    obs, info = envNash.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envNash.step(action)
+    act_model1_mod1vsNash, rew_model1_mod1vsNash, act_Nash_mod1vsNash, rew_Nash_mod1vsNash = append_act_rew_env0(act_model1_mod1vsNash, rew_model1_mod1vsNash, act_Nash_mod1vsNash, rew_Nash_mod1vsNash, envNash._action_history[5:], envNash._reward_history)
+    obs, info = envUniform.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envUniform.step(action)
+    act_model1_mod1vsUniform, rew_model1_mod1vsUniform, act_Uniform_mod1vsUniform, rew_Uniform_mod1vsUniform = append_act_rew_env0(act_model1_mod1vsUniform, rew_model1_mod1vsUniform, act_Uniform_mod1vsUniform, rew_Uniform_mod1vsUniform, envUniform._action_history[5:], envUniform._reward_history)
+    obs, info = envTendR.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envTendR.step(action)
+    act_model1_mod1vsTendR, rew_model1_mod1vsTendR, act_TendR_mod1vsTendR, rew_TendR_mod1vsTendR = append_act_rew_env0(act_model1_mod1vsTendR, rew_model1_mod1vsTendR, act_TendR_mod1vsTendR, rew_TendR_mod1vsTendR, envTendR._action_history[5:], envTendR._reward_history)
+    obs, info = envTendC.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envTendC.step(action)
+    act_model1_mod1vsTendC, rew_model1_mod1vsTendC, act_TendC_mod1vsTendC, rew_TendC_mod1vsTendC = append_act_rew_env0(act_model1_mod1vsTendC, rew_model1_mod1vsTendC, act_TendC_mod1vsTendC, rew_TendC_mod1vsTendC, envTendC._action_history[5:], envTendC._reward_history)
+    obs, info = envTendP.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envTendP.step(action)
+    act_model1_mod1vsTendP, rew_model1_mod1vsTendP, act_TendP_mod1vsTendP, rew_TendP_mod1vsTendP = append_act_rew_env0(act_model1_mod1vsTendP, rew_model1_mod1vsTendP, act_TendP_mod1vsTendP, rew_TendP_mod1vsTendP, envTendP._action_history[5:], envTendP._reward_history)
+    obs, info = envR.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envR.step(action)
+    act_model1_mod1vsR, rew_model1_mod1vsR, act_R_mod1vsR, rew_R_mod1vsR = append_act_rew_env0(act_model1_mod1vsR, rew_model1_mod1vsR, act_R_mod1vsR, rew_R_mod1vsR, envR._action_history[5:], envR._reward_history)
+    obs, info = envC.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envC.step(action)
+    act_model1_mod1vsC, rew_model1_mod1vsC, act_C_mod1vsC, rew_C_mod1vsC = append_act_rew_env0(act_model1_mod1vsC, rew_model1_mod1vsC, act_C_mod1vsC, rew_C_mod1vsC, envC._action_history[5:], envC._reward_history)
+    obs, info = envP.reset()
+    for k in range(goal):
+      action = model1.predict(obs, deterministic=True)[0]
+      obs, reward, terminated, truncated, info = envP.step(action)
+    act_model1_mod1vsP, rew_model1_mod1vsP, act_P_mod1vsP, rew_P_mod1vsP = append_act_rew_env0(act_model1_mod1vsP, rew_model1_mod1vsP, act_P_mod1vsP, rew_P_mod1vsP, envP._action_history[5:], envP._reward_history)
+
     print(f"i: {i} / {num_trials}\ntiming1 reward0: {rew_len_0_timing1[i]}, reward1: {rew_len_1_timing1[i]}\ntiming2 reward0: {rew_len_0_timing2[i]}, reward1: {rew_len_1_timing2[i]}")
 
   end_time = time.time()
@@ -294,7 +294,7 @@ def main(goal=100):
   format_end_time = time.strftime("%Y-%m%d-%H:%M:%S",local_end_time)
 
   # 保存用ディレクトリ作成
-  result_log_name = f"seed82(rsp,nash,uni,tend)_mod0*{learn_rate_leverage}-gradient*{gradient_steps_skale}-bach{model0_batch_size}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_nn{str(layer)}_seed{seed_value}_history{n_history}"
+  result_log_name = f"(rsp,nash,uni,tend)_mod0*{learn_rate_leverage}-gradient*{gradient_steps_skale}-bach{model0_batch_size}_{format_end_time}_learningRate{learn_rate}_gamma{gamma}_gradientSteps{gradient_steps}_trainFreq{freq_step}{freq_word}_trial{num_trials}_batchSize{batch_size}_nn{str(layer)}_seed{seed_value}_history{n_history}"
   os.makedirs(f"./results/{result_log_name}", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/hand_csv", exist_ok=True)
   os.makedirs(f"./results/{result_log_name}/rew_plot", exist_ok=True)
