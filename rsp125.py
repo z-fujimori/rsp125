@@ -94,14 +94,11 @@ class TitForTatAgent(NashAgent):
     last_opponent_hand = obs[-2]
     # 繰り返し対策は抜きました
     if last_strategy_hand == 2 and last_opponent_hand == 0:
-      # print("次はパーを出す")
       return Actions["P"], None
     elif last_strategy_hand == 0 and last_opponent_hand == 2:
-      # print("次はグーを出す")
       return Actions["R"], None
     else:
       return self.rng.choice((0, 1, 2), p=(2 / 17, 10 / 17, 5 / 17)), None
-      # return self.rng.choice((0, 1, 2), p=(1 / 3, 1 / 3, 1 / 3)), None
 
 class TendRAgent(UniformAgent):
   def predict(self, obs, deterministic=False):

@@ -254,8 +254,12 @@ def robust():
 def two_robust():
   path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach256_2025-0209-00:07:09_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
   name = "fig7"
-  # path = "results/追加検証しっぺ返し追加検証(rsp,nash,uni)_2025-0131-10:42:51_learningRate0.0005_gamma0.99_gradientSteps10_trainFreq10episode_trial1000_batchSize256_seed42/robust"
-  # name = "fig6"
+  # path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach256_2025-0209-14:33:05_learningRate0.000126_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
+  # name = "fig_lr_highhigh"
+  # path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach400_2025-0209-17:56:54_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize400_nn[64, 64]_seed42_history5/robust"
+  # name = "fig_bs_highhigh"
+  # path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach256_2025-0209-18:06:59_learningRate7e-05_gamma0.99_gradientSteps1200_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
+  # name = "fig_gs_highhigh"
 
   dqn_nash_0 = np.load(f"{path}/nash/rews0_mod0.npy")
   opp_nash_0 = np.load(f"{path}/nash/rewsNash_mod0.npy")
@@ -277,9 +281,12 @@ def two_robust():
   two_col_robust_evaluation(name, dqn_nash_0, opp_nash_0, dqn_r_0, opp_r_0, dqn_c_0, opp_c_0, dqn_p_0, opp_p_0, dqn_nash_1, opp_nash_1, dqn_r_1, opp_r_1, dqn_c_1, opp_c_1, dqn_p_1, opp_p_1)
 
 def three_robust():
-  path = "results/(rsp,nash,uni,tend)_mod01.0-gradient1.0-bach256_2025-0209-14:33:05_learningRate0.000126_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
-  high_low_path = "results/(修正版)追加検証()(rsp,nash,uni,tend)_originDQN_mod0*1.0-gradient*1.2-bach256_2025-0202-23:53:24_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed15/robust"
-  name = "fig8"
+  # path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach256_2025-0209-14:33:05_learningRate0.000126_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
+  # high_low_path = "results/(rsp,nash,uni,tend)_mod01.8-gradient1.0-bach256_2025-0210-202919_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
+  # name = "fig8"
+  path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach400_2025-0209-17:56:54_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize400_nn[64, 64]_seed42_history5/robust"
+  high_low_path = "results/(rsp,nash,uni,tend)_mod01.8-gradient1.0-bach256_2025-0210-202919_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
+  name = "fig10"
 
   dqn_nash = np.load(f"{path}/nash/rews1_mod1.npy")
   opp_nash = np.load(f"{path}/nash/rewsNash_mod1.npy")
@@ -311,12 +318,12 @@ def three_robust():
 
 if __name__ == "__main__":
   # main()
-  hand()
+  # hand()
   # ret_rew_plot()
   # robust_rew()
   # two_lines_rew()
-  # robust()
-  # two_robust()
+  robust()
+  two_robust()
   # three_robust()
 
   # read_npy = np.load(f"results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach256_2025-0125-03:54:04_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/robust/nash/rewsNash_mod1.npy")
