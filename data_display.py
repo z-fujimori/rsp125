@@ -694,7 +694,7 @@ def robust_evaluation(result_name, dqn_nash, opp_nash, dqn_r, opp_r, dqn_c, opp_
   data = {
     'Nash': [ave_dqn_nash, ave_opp_nash],
     'OnlyR': [ave_dqn_r, ave_opp_r],
-    'OnlyC': [ave_dqn_c, ave_opp_c],
+    'OnlyS': [ave_dqn_c, ave_opp_c],
     'OnlyP': [ave_dqn_p, ave_opp_p]
   }
 
@@ -709,7 +709,7 @@ def robust_evaluation(result_name, dqn_nash, opp_nash, dqn_r, opp_r, dqn_c, opp_
   bar1 = ax.bar(x - width/2, values[:, 0], width, label='機械学習エージェント', color='blue')
   bar2 = ax.bar(x + width/2, values[:, 1], width, label='固定戦略エージェント', color='orange')
   
-  ax.set_ylim(0, 290)
+  ax.set_ylim(0, 390)
   ax.yaxis.set_major_locator(MultipleLocator(50))
   ax.yaxis.set_minor_locator(MultipleLocator(10))
   ax.grid(axis='y', which='minor', linestyle='-', linewidth=0.5, alpha=0.3)
@@ -764,13 +764,13 @@ def two_col_robust_evaluation(result_name, dqn_nash_0, opp_nash_0, dqn_r_0, opp_
     {
       'Nash': [ave_dqn_nash_0, ave_opp_nash_0],
       'OnlyR': [ave_dqn_r_0, ave_opp_r_0],
-      'OnlyC': [ave_dqn_c_0, ave_opp_c_0],
+      'OnlyS': [ave_dqn_c_0, ave_opp_c_0],
       'OnlyP': [ave_dqn_p_0, ave_opp_p_0]
     },
     {
       'Nash': [ave_dqn_nash_1, ave_opp_nash_1],
       'OnlyR': [ave_dqn_r_1, ave_opp_r_1],
-      'OnlyC': [ave_dqn_c_1, ave_opp_c_1],
+      'OnlyS': [ave_dqn_c_1, ave_opp_c_1],
       'OnlyP': [ave_dqn_p_1, ave_opp_p_1]
     }
   ]
@@ -789,7 +789,7 @@ def two_col_robust_evaluation(result_name, dqn_nash_0, opp_nash_0, dqn_r_0, opp_
     ax.bar(x - width/2, values[:, 0], width, label='機械学習エージェント', color='blue')
     ax.bar(x + width/2, values[:, 1], width, label='固定戦略エージェント', color='orange')
     
-    ax.set_ylim(0, 290)
+    ax.set_ylim(0, 390)
     ax.yaxis.set_major_locator(MultipleLocator(50))
     ax.yaxis.set_minor_locator(MultipleLocator(10))
     ax.grid(axis='y', which='minor', linestyle='-', linewidth=0.5, alpha=0.3)
@@ -856,25 +856,25 @@ def three_col_robust_evaluation(result_name, dqn_nash, opp_nash, dqn_r, opp_r, d
     {
       'Nash': [ave_dqn_nash, ave_opp_nash],
       'OnlyR': [ave_dqn_r, ave_opp_r],
-      'OnlyC': [ave_dqn_c, ave_opp_c],
+      'OnlyS': [ave_dqn_c, ave_opp_c],
       'OnlyP': [ave_dqn_p, ave_opp_p]
     },
     {
       'Nash': [ave_high_dqn_nash, ave_high_opp_nash],
       'OnlyR': [ave_high_dqn_r, ave_high_opp_r],
-      'OnlyC': [ave_high_dqn_c, ave_high_opp_c],
+      'OnlyS': [ave_high_dqn_c, ave_high_opp_c],
       'OnlyP': [ave_high_dqn_p, ave_high_opp_p]
     },
     {
       'Nash': [ave_low_dqn_nash, ave_low_opp_nash],
       'OnlyR': [ave_low_dqn_r, ave_low_opp_r],
-      'OnlyC': [ave_low_dqn_c, ave_low_opp_c],
+      'OnlyS': [ave_low_dqn_c, ave_low_opp_c],
       'OnlyP': [ave_low_dqn_p, ave_low_opp_p]
     },
   ]
   graph_labels = ['A', 'B', 'C']
 
-  mpl.rcParams.update({'font.size': 25})
+  mpl.rcParams.update({'font.size': 35})
   fig, axes = plt.subplots(1, 3, figsize=(20,8), sharey=True)
 
   for ax, data, label in zip(axes, datas, graph_labels):
@@ -887,7 +887,7 @@ def three_col_robust_evaluation(result_name, dqn_nash, opp_nash, dqn_r, opp_r, d
     ax.bar(x - width/2, values[:, 0], width, label='機械学習エージェント', color='blue')
     ax.bar(x + width/2, values[:, 1], width, label='固定戦略エージェント', color='orange')
     
-    ax.set_ylim(0, 290)
+    ax.set_ylim(0, 390)
     ax.yaxis.set_major_locator(MultipleLocator(50))
     ax.yaxis.set_minor_locator(MultipleLocator(10))
     ax.grid(axis='y', which='minor', linestyle='-', linewidth=0.5, alpha=0.3)
@@ -896,11 +896,14 @@ def three_col_robust_evaluation(result_name, dqn_nash, opp_nash, dqn_r, opp_r, d
     # ax.set_ylabel('合計得点')
     # ax.set_title('タイトル')
     ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.legend(framealpha=0.7, fontsize=15)
+    ax.set_xticklabels(labels, rotation=90)
+    # ax.set_xticklabels(labels)
+    # ax.legend(framealpha=0.7, fontsize=20, bbox_to_anchor=(0.6, 0.5))
+    ax.legend(framealpha=0.7, fontsize=20)
 
-    ax.text(-0.1, 1.05, label, transform=ax.transAxes, fontsize=25, fontweight='bold', ha='left') # 左上の文字の設定
+    ax.text(-0.1, 1.0, label, transform=ax.transAxes, fontsize=30, fontweight='bold', ha='left') # 左上の文字の設定
 
+  plt.subplots_adjust(hspace=0.05)
   axes[0].set_ylabel('合計得点')
   # グラフを表示
   plt.tight_layout()
