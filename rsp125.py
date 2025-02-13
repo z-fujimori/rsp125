@@ -73,8 +73,7 @@ class RSP125(gym.Env):
       score1 = self._reward_history[:self.game_count, 1].sum()
       print(f'{self.game_count}回目')
       print(f'プレーヤーの手：{action0.name}、相手の手：{action1.name}')
-      print(f'プレーヤーのスコア： {score0}、相手のスコア：{score1}')
-
+      print(f'プレーヤーのスコア：{score0}、相手のスコア：{score1}')
 
 class UniformAgent:
   def __init__(self, rng):
@@ -129,7 +128,6 @@ class InputAgent:
     while action not in Actions.__members__:
       action = input('R or S or P ? ')
     return Actions[action], None
-
 
 def test_run():
   env = RSP125(goal=10, render_mode='human')

@@ -284,9 +284,12 @@ def three_robust():
   # path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach256_2025-0209-14:33:05_learningRate0.000126_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
   # high_low_path = "results/(rsp,nash,uni,tend)_mod01.8-gradient1.0-bach256_2025-0210-202919_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
   # name = "fig8"
-  path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach400_2025-0209-17:56:54_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize400_nn[64, 64]_seed42_history5/robust"
-  high_low_path = "results/(rsp,nash,uni,tend)_mod01.8-gradient1.0-bach256_2025-0210-202919_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
-  name = "fig10"
+  path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach256_2025-0209-18:06:59_learningRate7e-05_gamma0.99_gradientSteps1200_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
+  high_low_path = "results/(修正版)追加検証(rsp,nash,uni,tend)_originDQN_mod0*1.0-gradient*1.2-bach256_2025-0131-05:54:23_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial4000_batchSize256_nn[64, 64]_seed42/robust"
+  name = "fig9"
+  # path = "results/(rsp,nash,uni,tend)_mod0*1.0-gradient*1.0-bach400_2025-0209-17:56:54_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize400_nn[64, 64]_seed42_history5/robust"
+  # high_low_path = "results/(rsp,nash,uni,tend)_mod01.8-gradient1.0-bach256_2025-0210-202919_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42_history5/robust"
+  # name = "fig10"
 
   dqn_nash = np.load(f"{path}/nash/rews1_mod1.npy")
   opp_nash = np.load(f"{path}/nash/rewsNash_mod1.npy")
@@ -322,9 +325,9 @@ if __name__ == "__main__":
   # ret_rew_plot()
   # robust_rew()
   # two_lines_rew()
-  robust()
-  two_robust()
-  # three_robust()
+  # robust()
+  # two_robust()
+  three_robust()
 
   # read_npy = np.load(f"results/追加検証(nash,uni)_originDQN_mod0*1.0-gradient*1.0-bach256_2025-0125-03:54:04_learningRate7e-05_gamma0.99_gradientSteps1000_trainFreq10episode_trial10000_batchSize256_nn[64, 64]_seed42/robust/nash/rewsNash_mod1.npy")
   # print(read_npy)
